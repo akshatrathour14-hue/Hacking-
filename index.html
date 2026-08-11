@@ -3,656 +3,288 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CYBER COMMAND CENTER // VISUAL SIMULATION</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <title>CYBER_OS v9.9 - OVERRIDE TERMINAL</title>
   <style>
     :root {
-      --primary: #00ff66;
-      --primary-dim: #00aa44;
-      --bg-dark: #020804;
-      --panel-bg: rgba(2, 18, 8, 0.75);
-      --warning: #ffaa00;
-      --alert: #ff3333;
-      --font-mono: 'Courier New', Courier, monospace;
+      --green: #00ff66;
+      --dark-green: #003311;
+      --red: #ff3333;
+      --bg: #050805;
+      --panel-bg: rgba(0, 20, 5, 0.85);
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      user-select: none;
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', monospace; }
+    
     body {
-      background-color: var(--bg-dark);
-      color: var(--primary);
-      font-family: var(--font-mono);
+      background-color: var(--bg);
+      color: var(--green);
       height: 100vh;
-      width: 100vw;
       overflow: hidden;
       display: flex;
       flex-direction: column;
     }
 
-    /* CRT Scanlines & Flicker Overlay */
-    .crt::after {
+    /* Scanline effect */
+    body::before {
       content: " ";
-      display: block;
-      position: fixed;
+      position: absolute;
       top: 0; left: 0; bottom: 0; right: 0;
-      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%),
-                  linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
-      z-index: 999;
-      background-size: 100% 3px, 6px 100%;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+      z-index: 100;
+      background-size: 100% 4px, 6px 100%;
       pointer-events: none;
-      animation: flicker 0.12s infinite;
     }
 
-    @keyframes flicker {
-      0% { opacity: 0.96; }
-      50% { opacity: 1; }
-      100% { opacity: 0.98; }
-    }
-
-    /* Dashboard Layout */
-    .dashboard {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      padding: 10px;
-      gap: 10px;
-      z-index: 1;
-    }
-
-    /* Top Header */
-    .header {
-      border: 1px solid var(--primary);
-      background: var(--panel-bg);
-      padding: 10px 15px;
+    header {
+      border-bottom: 2px solid var(--green);
+      padding: 10px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: 0 0 10px rgba(0, 255, 102, 0.2);
+      background: #001100;
     }
 
-    .header-tag {
-      font-size: 0.75rem;
-      color: var(--primary-dim);
-      letter-spacing: 2px;
-    }
-
-    .header-title {
-      font-size: 1.2rem;
-      letter-spacing: 3px;
-      text-shadow: 0 0 8px var(--primary);
-    }
-
-    .header-status {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      font-size: 0.85rem;
-    }
-
-    .status-indicator {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .pulse-dot {
-      width: 8px;
-      height: 8px;
-      background-color: var(--primary);
-      border-radius: 50%;
-      box-shadow: 0 0 8px var(--primary);
-      animation: pulse 1s infinite alternate;
-    }
-
-    @keyframes pulse {
-      0% { opacity: 0.3; }
-      100% { opacity: 1; }
-    }
-
-    /* Main Grid */
     .main-grid {
       display: grid;
-      grid-template-columns: 220px 1fr 220px;
-      flex: 1;
+      grid-template-columns: 280px 1fr 320px;
       gap: 10px;
-      min-height: 0;
+      padding: 10px;
+      flex-grow: 1;
+      height: calc(100vh - 60px);
     }
 
     .panel {
-      border: 1px solid rgba(0, 255, 102, 0.4);
+      border: 1px solid var(--green);
       background: var(--panel-bg);
       padding: 12px;
       display: flex;
       flex-direction: column;
-      box-shadow: inset 0 0 15px rgba(0, 255, 102, 0.05);
-      position: relative;
+      box-shadow: 0 0 10px rgba(0, 255, 102, 0.1);
     }
 
     .panel-title {
-      font-size: 0.85rem;
-      letter-spacing: 2px;
-      border-bottom: 1px dashed rgba(0, 255, 102, 0.4);
-      padding-bottom: 6px;
+      border-bottom: 1px solid var(--green);
+      padding-bottom: 5px;
       margin-bottom: 10px;
-      color: var(--primary);
-      text-shadow: 0 0 5px var(--primary);
-    }
-
-    /* Left Panel: Nodes */
-    .node-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .node-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 6px 8px;
-      background: rgba(0, 255, 102, 0.05);
-      border-left: 3px solid var(--primary);
-      font-size: 0.75rem;
-    }
-
-    .node-item.warning { border-color: var(--warning); color: var(--warning); }
-    .node-item.alert { border-color: var(--alert); color: var(--alert); }
-
-    .node-tag {
-      font-size: 0.65rem;
-      padding: 2px 4px;
-      border: 1px solid currentColor;
-    }
-
-    /* Center Panel: Globe HUD */
-    .center-panel {
-      position: relative;
-      padding: 0;
-      overflow: hidden;
-    }
-
-    #globe-container {
-      width: 100%;
-      height: 100%;
-      cursor: grab;
-    }
-
-    #globe-container:active { cursor: grabbing; }
-
-    .hud-labels {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      pointer-events: none;
-    }
-
-    .hud-chip {
-      font-size: 0.65rem;
-      background: rgba(0, 20, 8, 0.8);
-      border: 1px solid var(--primary);
-      padding: 2px 6px;
-      width: fit-content;
-    }
-
-    .hud-chip.alert { border-color: var(--alert); color: var(--alert); }
-
-    /* Progress Overlay */
-    .progress-box {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80%;
-      background: rgba(0, 15, 5, 0.95);
-      border: 1px solid var(--primary);
-      padding: 10px;
-      box-shadow: 0 0 15px rgba(0, 255, 102, 0.3);
-      display: none;
-      z-index: 10;
-    }
-
-    .progress-title {
-      font-size: 0.75rem;
-      margin-bottom: 6px;
-      text-align: center;
-    }
-
-    .progress-bar {
-      width: 100%;
-      height: 12px;
-      border: 1px solid var(--primary);
-      background: #001100;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      width: 0%;
-      background: var(--primary);
-      box-shadow: 0 0 8px var(--primary);
-      transition: width 0.1s linear;
-    }
-
-    /* Right Panel: Controls */
-    .control-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .btn {
-      background: rgba(0, 40, 15, 0.6);
-      border: 1px solid var(--primary);
-      color: var(--primary);
-      padding: 10px;
-      font-family: var(--font-mono);
-      font-size: 0.72rem;
       font-weight: bold;
-      letter-spacing: 1px;
+      letter-spacing: 2px;
+    }
+
+    /* Buttons */
+    .btn {
+      background: #002200;
+      color: var(--green);
+      border: 1px solid var(--green);
+      padding: 10px;
+      margin: 5px 0;
       cursor: pointer;
-      text-align: left;
+      font-weight: bold;
+      text-transform: uppercase;
       transition: all 0.2s;
     }
-
     .btn:hover {
-      background: var(--primary);
+      background: var(--green);
       color: #000;
-      box-shadow: 0 0 10px var(--primary);
+      box-shadow: 0 0 10px var(--green);
     }
 
-    .btn.warning { border-color: var(--warning); color: var(--warning); }
-    .btn.warning:hover { background: var(--warning); color: #000; box-shadow: 0 0 10px var(--warning); }
-    .btn.alert { border-color: var(--alert); color: var(--alert); }
-    .btn.alert:hover { background: var(--alert); color: #000; box-shadow: 0 0 10px var(--alert); }
-
-    /* Bottom Terminal Panel */
-    .terminal-panel {
-      height: 140px;
-      border: 1px solid rgba(0, 255, 102, 0.4);
-      background: rgba(0, 10, 3, 0.9);
-      display: flex;
-      flex-direction: column;
-    }
-
-    .terminal-header {
-      background: rgba(0, 30, 10, 0.8);
-      padding: 4px 10px;
-      font-size: 0.7rem;
-      border-bottom: 1px solid rgba(0, 255, 102, 0.3);
-      display: flex;
-      justify-content: space-between;
-      color: var(--primary-dim);
-    }
-
-    .terminal-body {
-      flex: 1;
-      padding: 8px;
+    /* Console logs */
+    #console-log {
+      flex-grow: 1;
       overflow-y: auto;
-      font-size: 0.72rem;
+      font-size: 13px;
       line-height: 1.4;
+      color: #00cc55;
     }
 
-    .log-line { margin-bottom: 2px; }
-    .log-line .ts { color: var(--primary-dim); margin-right: 6px; }
-    .log-line.warn { color: var(--warning); }
-    .log-line.alert { color: var(--alert); }
-    .log-line.success { color: #00ffff; }
-
-    /* Responsive */
-    @media (max-width: 800px) {
-      body { overflow-y: auto; }
-      .main-grid {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto 300px auto;
-      }
+    /* CCTV Feed Grid */
+    .cctv-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      height: 220px;
+      margin-bottom: 10px;
     }
+    .cam-box {
+      border: 1px dashed var(--green);
+      background: #000;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+    }
+    .cam-label { position: absolute; top: 4px; left: 4px; color: var(--red); font-weight: bold; }
+
+    /* Modals */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: #000;
+      border: 2px solid var(--green);
+      padding: 20px;
+      z-index: 200;
+      box-shadow: 0 0 30px rgba(0,255,102,0.4);
+      text-align: center;
+    }
+    canvas { background: #000; display: block; margin: 10px auto; }
+
+    /* Red Alert Overlay */
+    #red-alert {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(255, 0, 0, 0.4);
+      z-index: 300;
+      pointer-events: none;
+      animation: flash 0.5s infinite alternate;
+    }
+    @keyframes flash { from { opacity: 0.2; } to { opacity: 1; } }
   </style>
 </head>
-<body class="crt">
-  <div class="dashboard">
-    <header class="header">
-      <div>
-        <div class="header-tag">[ SYS_OVERRIDE // VISUAL SIMULATION ]</div>
-        <div class="header-title">CYBER COMMAND CENTER</div>
-      </div>
-      <div class="header-status">
-        <div class="status-indicator">
-          <span class="pulse-dot"></span>
-          <span>STATUS: SIMULATION ACTIVE</span>
-        </div>
-        <div id="utc-clock">00:00:00 UTC</div>
-      </div>
-    </header>
+<body>
 
-    <div class="main-grid">
-      <aside class="panel">
-        <div class="panel-title">NETWORK NODES</div>
-        <div class="node-list">
-          <div class="node-item">
-            <span>NODE-01</span>
-            <span class="node-tag">ONLINE</span>
-          </div>
-          <div class="node-item">
-            <span>NODE-02</span>
-            <span class="node-tag">ONLINE</span>
-          </div>
-          <div class="node-item warning">
-            <span>NODE-03</span>
-            <span class="node-tag">BYPASSED</span>
-          </div>
-          <div class="node-item">
-            <span>NODE-04</span>
-            <span class="node-tag">SIGNAL LOCK</span>
-          </div>
-          <div class="node-item warning">
-            <span>NODE-05</span>
-            <span class="node-tag">BUFFERING</span>
-          </div>
-          <div class="node-item alert">
-            <span>NODE-06</span>
-            <span class="node-tag">OFFLINE</span>
-          </div>
-        </div>
-      </aside>
+  <header>
+    <div>[SYS_OVERRIDE_v9.9] ACTIVE CONNECTION</div>
+    <div id="clock">00:00:00 UTC</div>
+  </header>
 
-      <main class="panel center-panel">
-        <div id="globe-container"></div>
-        
-        <div class="hud-labels">
-          <div class="hud-chip">NODE-01</div>
-          <div class="hud-chip">NODE-07</div>
-          <div class="hud-chip">RELAY-A</div>
-          <div class="hud-chip alert">TARGET SIM</div>
-        </div>
-
-        <div class="progress-box" id="progress-box">
-          <div class="progress-title" id="progress-title">TRACING SIGNAL...</div>
-          <div class="progress-bar">
-            <div class="progress-fill" id="progress-fill"></div>
-          </div>
-        </div>
-      </main>
-
-      <aside class="panel">
-        <div class="panel-title">SYSTEM CONTROL</div>
-        <div class="control-buttons">
-          <button class="btn" onclick="startSim()">START SIMULATION</button>
-          <button class="btn" onclick="injectFeed()">INJECT LOOPED FEED</button>
-          <button class="btn" onclick="runDiagnostic()">RUN DIAGNOSTIC</button>
-          <button class="btn warning" onclick="traceSignal()">TRACE SIGNAL</button>
-          <button class="btn" onclick="lockTarget()">LOCK TARGET</button>
-          <button class="btn alert" onclick="resetSim()">RESET SIMULATION</button>
-        </div>
-      </aside>
+  <div class="main-grid">
+    <div class="panel">
+      <div class="panel-title">> COMMANDS</div>
+      <button class="btn" onclick="toggleModal('globe-modal')">🌐 OPEN 3D GLOBE MAP</button>
+      <button class="btn" onclick="triggerOverride()">🔓 BYPASS FIREWALL</button>
+      <button class="btn" onclick="toggleRedAlert()">🚨 EMERGENCY LOCKDOWN</button>
+      <button class="btn" onclick="clearLogs()">🧹 CLEAR LOGS</button>
+      
+      <div class="panel-title" style="margin-top: 20px;">> SYSTEM STATUS</div>
+      <p style="font-size: 12px; margin-bottom: 5px;">CPU: <span id="cpu-usage">42%</span></p>
+      <p style="font-size: 12px; margin-bottom: 5px;">RAM: 14.2 / 32 GB</p>
+      <p style="font-size: 12px;">NODES: 64 ACTIVE</p>
     </div>
 
-    <footer class="terminal-panel">
-      <div class="terminal-header">
-        <span>SIMULATED SYSTEM TERMINAL</span>
-        <span>CONSOLE ID: DEMO-8802</span>
+    <div class="panel">
+      <div class="panel-title">> CCTV SURVEILLANCE OVERRIDE</div>
+      <div class="cctv-grid">
+        <div class="cam-box"><span class="cam-label">CAM_01 [LIVE]</span>MAIN GATE</div>
+        <div class="cam-box" style="border-color: var(--red);"><span class="cam-label">CAM_02 [BYPASSED]</span>FEED OVERRIDDEN</div>
+        <div class="cam-box"><span class="cam-label">CAM_03 [LOOPING]</span>SERVER ROOM</div>
+        <div class="cam-box"><span class="cam-label">CAM_04 [JAMMED]</span>NO SIGNAL</div>
       </div>
-      <div class="terminal-body" id="terminal-body"></div>
-    </footer>
+
+      <div class="panel-title">> REALTIME TERMINAL DATA</div>
+      <div id="console-log"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">> ACTIVE PAYLOAD</div>
+      <div id="code-stream" style="font-size: 10px; color: var(--green); opacity: 0.8; overflow: hidden; height: 100%;"></div>
+    </div>
   </div>
 
+  <div id="globe-modal" class="modal">
+    <h3>GLOBAL SATELLITE NETWORK (3D TRACKER)</h3>
+    <canvas id="globeCanvas" width="400" height="400"></canvas>
+    <button class="btn" onclick="toggleModal('globe-modal')">CLOSE MAP</button>
+  </div>
+
+  <div id="red-alert"></div>
+
   <script>
-    // --- Clock Setup ---
-    function updateClock() {
-      const now = new Date();
-      const h = String(now.getUTCHours()).padStart(2, '0');
-      const m = String(now.getUTCMinutes()).padStart(2, '0');
-      const s = String(now.getUTCSeconds()).padStart(2, '0');
-      document.getElementById('utc-clock').innerText = `${h}:${m}:${s} UTC`;
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
-
-    // --- Terminal Logs ---
-    const term = document.getElementById('terminal-body');
-
-    function addLog(msg, type = 'normal') {
-      const now = new Date();
-      const ts = now.toTimeString().split(' ')[0];
-      const div = document.createElement('div');
-      div.className = `log-line ${type}`;
-      div.innerHTML = `<span class="ts">[${ts}]</span> ${msg}`;
-      term.appendChild(div);
-      term.scrollTop = term.scrollHeight;
-    }
-
-    addLog("Initializing visual simulation core...", "normal");
-    addLog("Grid renderer online. All real network interaction disabled.", "success");
-
-    // Random terminal background activity
+    // Live Clock
     setInterval(() => {
-      const noises = [
-        "SYS_CHK :: Virtual memory bus optimal",
-        "SYNC :: Satellite frame loop synchronized",
-        "BUFFER_ALLOC :: 0x7F000000 dummy space clear",
-        "PING :: Relay node virtual ACK ok"
-      ];
-      if (Math.random() > 0.7) {
-        addLog(noises[Math.floor(Math.random() * noises.length)], 'normal');
-      }
-    }, 3500);
+      document.getElementById('clock').innerText = new Date().toUTCString().split(' ')[4] + ' UTC';
+      document.getElementById('cpu-usage').innerText = Math.floor(Math.random() * 40 + 40) + '%';
+    }, 1000);
 
-    // --- 3D Globe Implementation (Three.js) ---
-    let scene, camera, renderer, globeGroup;
-    let isTracing = false;
+    // Dynamic Fake Logs Generator
+    const logsContainer = document.getElementById('console-log');
+    const fakeLogs = [
+      "Connecting to proxy node 192.168.1.104...",
+      "Injecting shellcode into memory address 0x7FFF...",
+      "Bypassing SSL handshake certificate check...",
+      "Intercepting RTSP stream port 554...",
+      "Packet sniffing: 1024 packets routed.",
+      "Access Granted to Admin Module.",
+      "ALERT: Intrusion Detection System triggered on Zone B."
+    ];
 
-    function initGlobe() {
-      const container = document.getElementById('globe-container');
-      const w = container.clientWidth;
-      const h = container.clientHeight;
+    setInterval(() => {
+      const p = document.createElement('div');
+      const time = new Date().toISOString().substr(11, 8);
+      p.innerText = `[${time}] ${fakeLogs[Math.floor(Math.random() * fakeLogs.length)]}`;
+      logsContainer.appendChild(p);
+      logsContainer.scrollTop = logsContainer.scrollHeight;
+    }, 800);
 
-      scene = new THREE.Scene();
-      camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 1000);
-      camera.position.z = 240;
+    // Fake Matrix Code Stream (Right Column)
+    const codeStream = document.getElementById('code-stream');
+    setInterval(() => {
+      let line = "";
+      for (let i = 0; i < 30; i++) line += String.fromCharCode(0x30A0 + Math.random() * 96);
+      codeStream.innerText = line + "\n" + codeStream.innerText.slice(0, 1000);
+    }, 100);
 
-      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-      renderer.setSize(w, h);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      container.appendChild(renderer.domElement);
+    // Actions
+    function toggleModal(id) {
+      const el = document.getElementById(id);
+      el.style.display = el.style.display === 'block' ? 'none' : 'block';
+    }
 
-      globeGroup = new THREE.Group();
-      scene.add(globeGroup);
+    function triggerOverride() {
+      alert("OVERRIDE INITIATED: Accessing high-security databases...");
+    }
 
-      const radius = 75;
+    function clearLogs() {
+      logsContainer.innerHTML = '';
+    }
 
-      // Dark Sphere
-      const sphereGeo = new THREE.SphereGeometry(radius, 32, 32);
-      const sphereMat = new THREE.MeshBasicMaterial({ color: 0x011205 });
-      globeGroup.add(new THREE.Mesh(sphereGeo, sphereMat));
+    function toggleRedAlert() {
+      const el = document.getElementById('red-alert');
+      el.style.display = el.style.display === 'block' ? 'none' : 'block';
+    }
 
-      // Wireframe Globe
-      const wireGeo = new THREE.SphereGeometry(radius + 0.2, 24, 24);
-      const wireMat = new THREE.MeshBasicMaterial({
-        color: 0x00ff66,
-        wireframe: true,
-        transparent: true,
-        opacity: 0.2
-      });
-      globeGroup.add(new THREE.Mesh(wireGeo, wireMat));
+    // Canvas 3D Globe Renderer (Pure JavaScript)
+    const canvas = document.getElementById('globeCanvas');
+    const ctx = canvas.getContext('2d');
+    let angle = 0;
 
-      // Atmosphere Glow
-      const atmosGeo = new THREE.SphereGeometry(radius + 4, 32, 32);
-      const atmosMat = new THREE.MeshBasicMaterial({
-        color: 0x00ff66,
-        transparent: true,
-        opacity: 0.08,
-        side: THREE.BackSide
-      });
-      globeGroup.add(new THREE.Mesh(atmosGeo, atmosMat));
+    function drawGlobe() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const cx = 200, cy = 200, radius = 140;
+      
+      ctx.strokeStyle = '#00ff66';
+      ctx.lineWidth = 1;
 
-      // Demo Nodes (Lat / Lon)
-      const nodes = [
-        { name: "NODE-01", lat: 37.77, lon: -122.41, color: 0x00ff66 },
-        { name: "NODE-07", lat: 51.50, lon: -0.12, color: 0x00ff66 },
-        { name: "RELAY-A", lat: 35.67, lon: 139.65, color: 0xffaa00 },
-        { name: "TARGET SIM", lat: -33.86, lon: 151.20, color: 0xff3333 }
-      ];
+      // Draw Sphere outline
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+      ctx.stroke();
 
-      function latLonToVec3(lat, lon, r) {
-        const phi = (90 - lat) * (Math.PI / 180);
-        const theta = (lon + 180) * (Math.PI / 180);
-        return new THREE.Vector3(
-          -(r * Math.sin(phi) * Math.cos(theta)),
-          r * Math.cos(phi),
-          r * Math.sin(phi) * Math.sin(theta)
-        );
-      }
-
-      const points = nodes.map(n => {
-        const pos = latLonToVec3(n.lat, n.lon, radius + 1);
-        const mGeo = new THREE.SphereGeometry(2, 12, 12);
-        const mMat = new THREE.MeshBasicMaterial({ color: n.color });
-        const marker = new THREE.Mesh(mGeo, mMat);
-        marker.position.copy(pos);
-        globeGroup.add(marker);
-        return pos;
-      });
-
-      // Curved Connection Lines
-      for (let i = 0; i < points.length; i++) {
-        const p1 = points[i];
-        const p2 = points[(i + 1) % points.length];
-
-        const mid = p1.clone().add(p2).multiplyScalar(0.5);
-        mid.normalize().multiplyScalar(radius + 25);
-
-        const curve = new THREE.QuadraticBezierCurve3(p1, mid, p2);
-        const curvePoints = curve.getPoints(40);
-        const cGeo = new THREE.BufferGeometry().setFromPoints(curvePoints);
-        const cMat = new THREE.LineBasicMaterial({
-          color: i % 2 === 0 ? 0x00ff66 : 0xffaa00,
-          transparent: true,
-          opacity: 0.6
-        });
-        globeGroup.add(new THREE.Line(cGeo, cMat));
+      // Draw Rotating Lat/Long Lines
+      for (let i = -90; i <= 90; i += 30) {
+        let r = radius * Math.cos(i * Math.PI / 180);
+        let y = cy + radius * Math.sin(i * Math.PI / 180);
+        ctx.beginPath();
+        ctx.ellipse(cx, y, r, r * 0.3, 0, 0, Math.PI * 2);
+        ctx.stroke();
       }
 
-      // Drag Controls
-      let isDragging = false;
-      let prevMouse = { x: 0, y: 0 };
-
-      container.addEventListener('pointerdown', (e) => {
-        isDragging = true;
-        prevMouse = { x: e.clientX, y: e.clientY };
-      });
-
-      window.addEventListener('pointermove', (e) => {
-        if (!isDragging) return;
-        const dx = e.clientX - prevMouse.x;
-        const dy = e.clientY - prevMouse.y;
-        globeGroup.rotation.y += dx * 0.005;
-        globeGroup.rotation.x += dy * 0.005;
-        prevMouse = { x: e.clientX, y: e.clientY };
-      });
-
-      window.addEventListener('pointerup', () => isDragging = false);
-
-      // Mouse Wheel Zoom
-      container.addEventListener('wheel', (e) => {
-        e.preventDefault();
-        camera.position.z += e.deltaY * 0.15;
-        camera.position.z = Math.max(120, Math.min(380, camera.position.z));
-      }, { passive: false });
-
-      // Resize
-      window.addEventListener('resize', () => {
-        const width = container.clientWidth;
-        const height = container.clientHeight;
-        camera.aspect = width / height;
-        camera.updateProjectionMatrix();
-        renderer.setSize(width, height);
-      });
-
-      // Render Loop
-      function render() {
-        requestAnimationFrame(render);
-        if (!isDragging) {
-          globeGroup.rotation.y += isTracing ? 0.015 : 0.002;
-        }
-        renderer.render(scene, camera);
+      for (let j = 0; j < 360; j += 45) {
+        let rad = (j + angle) * Math.PI / 180;
+        let x = cx + radius * Math.cos(rad);
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - radius);
+        ctx.quadraticCurveTo(x, cy, cx, cy + radius);
+        ctx.stroke();
       }
-      render();
+
+      angle += 0.8;
+      requestAnimationFrame(drawGlobe);
     }
-
-    window.onload = initGlobe;
-
-    // --- Interactive Control Actions ---
-    function startSim() {
-      addLog("STARTING FULL SIMULATION ROUTINE...", "success");
-      addLog("VIRTUAL GRID ROUTING SYNCHRONIZED.", "normal");
-    }
-
-    function injectFeed() {
-      addLog("INJECTING LOOPED VISUAL DATASTREAM...", "warn");
-      addLog("CHANNEL-01 FEED OVERLAY: ONLINE", "normal");
-    }
-
-    function runDiagnostic() {
-      addLog("DIAGNOSTIC RUN INITIATED...", "warn");
-      setTimeout(() => addLog("CPU CORES 1-8: 100% HEALTHY", "normal"), 300);
-      setTimeout(() => addLog("SIMULATED FIREWALL: 0 VULNERABILITIES", "success"), 600);
-    }
-
-    function traceSignal() {
-      if (isTracing) return;
-      isTracing = true;
-
-      const box = document.getElementById('progress-box');
-      const fill = document.getElementById('progress-fill');
-      const title = document.getElementById('progress-title');
-
-      box.style.display = 'block';
-      fill.style.width = '0%';
-      title.innerText = "TRACING SIGNAL...";
-
-      addLog("SIGNAL TRACE INITIATED :: HOPPING PROXIES...", "warn");
-
-      let pct = 0;
-      const interval = setInterval(() => {
-        pct += Math.floor(Math.random() * 12) + 8;
-        if (pct > 100) pct = 100;
-        fill.style.width = pct + '%';
-
-        if (pct === 30) addLog("HOP 1: NODE-01 [192.0.2.45] -> ACK", "normal");
-        if (pct === 60) addLog("HOP 2: RELAY-A [198.51.100.12] -> ACK", "normal");
-        if (pct === 90) addLog("HOP 3: TARGET SIM [203.0.113.89] -> RESOLVING...", "warn");
-
-        if (pct >= 100) {
-          clearInterval(interval);
-          setTimeout(() => {
-            title.innerText = "TRACE COMPLETE // SIMULATION ONLY";
-            addLog("TRACE COMPLETE // SIMULATION ONLY", "alert");
-            addLog("ALL DATA & IP ADDRESSES SHOWN ARE FICTIONAL DEMO DATA.", "success");
-            setTimeout(() => {
-              box.style.display = 'none';
-              isTracing = false;
-            }, 3000);
-          }, 400);
-        }
-      }, 200);
-    }
-
-    function lockTarget() {
-      addLog("TARGET SIM LOCK CONFIRMED.", "alert");
-      addLog("GRID VECTOR LOCKED: [33.86° S, 151.20° E] (DEMO DATA)", "warn");
-    }
-
-    function resetSim() {
-      term.innerHTML = '';
-      addLog("SYSTEM SIMULATION RESET TO INITIAL STATE.", "success");
-    }
+    drawGlobe();
   </script>
 </body>
 </html>
