@@ -6,109 +6,116 @@
   <title>CYBER COMMAND CENTER // VISUAL SIMULATION</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
+    :root {
+      --primary: #00ff66;
+      --primary-dim: #00aa44;
+      --bg-dark: #020804;
+      --panel-bg: rgba(2, 18, 8, 0.75);
+      --warning: #ffaa00;
+      --alert: #ff3333;
+      --font-mono: 'Courier New', Courier, monospace;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-    }
-
-    body {
-      background-color: #020703;
-      color: #00ff66;
-      font-family: 'Courier New', Courier, monospace;
-      overflow: hidden;
-      height: 100vh;
-      width: 100vw;
       user-select: none;
     }
 
-    /* CRT Overlay Effects */
-    .crt-overlay {
+    body {
+      background-color: var(--bg-dark);
+      color: var(--primary);
+      font-family: var(--font-mono);
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* CRT Scanlines & Flicker Overlay */
+    .crt::after {
+      content: " ";
+      display: block;
       position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%), 
+      top: 0; left: 0; bottom: 0; right: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%),
                   linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+      z-index: 999;
       background-size: 100% 3px, 6px 100%;
       pointer-events: none;
-      z-index: 100;
-      animation: flicker 0.15s infinite;
+      animation: flicker 0.12s infinite;
     }
 
     @keyframes flicker {
-      0% { opacity: 0.97; }
+      0% { opacity: 0.96; }
       50% { opacity: 1; }
       100% { opacity: 0.98; }
     }
 
-    .app-container {
+    /* Dashboard Layout */
+    .dashboard {
       display: flex;
       flex-direction: column;
       height: 100vh;
       padding: 10px;
       gap: 10px;
-      background: radial-gradient(circle at center, #061e0b 0%, #010602 100%);
+      z-index: 1;
     }
 
     /* Top Header */
     .header {
+      border: 1px solid var(--primary);
+      background: var(--panel-bg);
+      padding: 10px 15px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border: 1px solid #00ff66;
-      padding: 8px 15px;
-      background: rgba(0, 20, 5, 0.8);
-      box-shadow: inset 0 0 10px rgba(0, 255, 102, 0.2), 0 0 10px rgba(0, 255, 102, 0.2);
+      box-shadow: 0 0 10px rgba(0, 255, 102, 0.2);
     }
 
-    .header-title .sub {
-      font-size: 0.7rem;
-      color: #00aa44;
+    .header-tag {
+      font-size: 0.75rem;
+      color: var(--primary-dim);
       letter-spacing: 2px;
-      display: block;
     }
 
-    .header-title h1 {
+    .header-title {
       font-size: 1.2rem;
       letter-spacing: 3px;
-      color: #00ff66;
-      text-shadow: 0 0 8px #00ff66;
+      text-shadow: 0 0 8px var(--primary);
     }
 
     .header-status {
-      text-align: right;
-    }
-
-    .status-badge {
-      font-size: 0.8rem;
-      color: #00ff66;
       display: flex;
       align-items: center;
-      gap: 8px;
-      justify-content: flex-end;
+      gap: 15px;
+      font-size: 0.85rem;
     }
 
-    .blink-dot {
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pulse-dot {
       width: 8px;
       height: 8px;
-      background-color: #00ff66;
+      background-color: var(--primary);
       border-radius: 50%;
-      box-shadow: 0 0 8px #00ff66;
+      box-shadow: 0 0 8px var(--primary);
       animation: pulse 1s infinite alternate;
     }
 
     @keyframes pulse {
-      0% { opacity: 0.2; }
+      0% { opacity: 0.3; }
       100% { opacity: 1; }
     }
 
-    .clock {
-      font-size: 0.85rem;
-      color: #00cc55;
-      margin-top: 3px;
-    }
-
-    /* Main Section Layout */
-    .main-content {
+    /* Main Grid */
+    .main-grid {
       display: grid;
       grid-template-columns: 220px 1fr 220px;
       flex: 1;
@@ -118,22 +125,22 @@
 
     .panel {
       border: 1px solid rgba(0, 255, 102, 0.4);
-      background: rgba(0, 15, 5, 0.7);
-      padding: 10px;
-      box-shadow: inset 0 0 15px rgba(0, 255, 102, 0.1);
+      background: var(--panel-bg);
+      padding: 12px;
       display: flex;
       flex-direction: column;
+      box-shadow: inset 0 0 15px rgba(0, 255, 102, 0.05);
       position: relative;
     }
 
-    .panel h2 {
+    .panel-title {
       font-size: 0.85rem;
-      letter-spacing: 1.5px;
+      letter-spacing: 2px;
       border-bottom: 1px dashed rgba(0, 255, 102, 0.4);
-      padding-bottom: 5px;
-      margin-bottom: 12px;
-      color: #00ff66;
-      text-shadow: 0 0 5px #00ff66;
+      padding-bottom: 6px;
+      margin-bottom: 10px;
+      color: var(--primary);
+      text-shadow: 0 0 5px var(--primary);
     }
 
     /* Left Panel: Nodes */
@@ -147,42 +154,25 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(0, 30, 10, 0.5);
       padding: 6px 8px;
-      border-left: 3px solid #00ff66;
+      background: rgba(0, 255, 102, 0.05);
+      border-left: 3px solid var(--primary);
       font-size: 0.75rem;
     }
 
-    .node-item.bypassed { border-left-color: #ff9900; }
-    .node-item.offline { border-left-color: #ff3333; }
+    .node-item.warning { border-color: var(--warning); color: var(--warning); }
+    .node-item.alert { border-color: var(--alert); color: var(--alert); }
 
-    .node-status {
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      gap: 6px;
+    .node-tag {
+      font-size: 0.65rem;
+      padding: 2px 4px;
+      border: 1px solid currentColor;
     }
 
-    .node-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      display: inline-block;
-    }
-
-    .dot-online { background: #00ff66; box-shadow: 0 0 5px #00ff66; }
-    .dot-bypassed { background: #ff9900; box-shadow: 0 0 5px #ff9900; }
-    .dot-lock { background: #00ffff; box-shadow: 0 0 5px #00ffff; animation: pulse 0.4s infinite alternate; }
-    .dot-buffering { background: #ffff00; box-shadow: 0 0 5px #ffff00; }
-    .dot-offline { background: #ff3333; box-shadow: 0 0 5px #ff3333; }
-
-    /* Center Panel: Globe */
-    .globe-panel {
-      padding: 0;
+    /* Center Panel: Globe HUD */
+    .center-panel {
       position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      padding: 0;
       overflow: hidden;
     }
 
@@ -194,48 +184,62 @@
 
     #globe-container:active { cursor: grabbing; }
 
-    .globe-overlay-labels {
+    .hud-labels {
       position: absolute;
-      top: 12px;
-      left: 12px;
-      pointer-events: none;
+      top: 10px;
+      left: 10px;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 5px;
+      pointer-events: none;
     }
 
-    .hud-tag {
+    .hud-chip {
       font-size: 0.65rem;
-      background: rgba(0, 20, 5, 0.8);
-      border: 1px solid rgba(0, 255, 102, 0.4);
+      background: rgba(0, 20, 8, 0.8);
+      border: 1px solid var(--primary);
       padding: 2px 6px;
-      letter-spacing: 1px;
       width: fit-content;
     }
 
-    .hud-tag.alert {
-      border-color: #ff3333;
-      color: #ff3333;
-    }
+    .hud-chip.alert { border-color: var(--alert); color: var(--alert); }
 
-    #progress-container {
+    /* Progress Overlay */
+    .progress-box {
       position: absolute;
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
       width: 80%;
-      background: rgba(0, 20, 5, 0.95);
-      border: 1px solid #00ff66;
+      background: rgba(0, 15, 5, 0.95);
+      border: 1px solid var(--primary);
       padding: 10px;
-      text-align: center;
-      box-shadow: 0 0 15px rgba(0, 255, 102, 0.4);
+      box-shadow: 0 0 15px rgba(0, 255, 102, 0.3);
+      display: none;
       z-index: 10;
     }
 
-    #progress-container.hidden { display: none; }
-    #progress-label { font-size: 0.75rem; margin-bottom: 6px; letter-spacing: 1px; }
-    .progress-bar-bg { width: 100%; height: 10px; border: 1px solid #00ff66; background: #001100; }
-    #progress-bar-fill { height: 100%; width: 0%; background: #00ff66; box-shadow: 0 0 8px #00ff66; transition: width 0.1s linear; }
+    .progress-title {
+      font-size: 0.75rem;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 12px;
+      border: 1px solid var(--primary);
+      background: #001100;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--primary);
+      box-shadow: 0 0 8px var(--primary);
+      transition: width 0.1s linear;
+    }
 
     /* Right Panel: Controls */
     .control-buttons {
@@ -246,38 +250,36 @@
 
     .btn {
       background: rgba(0, 40, 15, 0.6);
-      border: 1px solid #00ff66;
-      color: #00ff66;
-      padding: 9px;
-      font-family: inherit;
-      font-size: 0.7rem;
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      padding: 10px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
       font-weight: bold;
       letter-spacing: 1px;
       cursor: pointer;
-      transition: all 0.2s ease;
       text-align: left;
-      box-shadow: 0 0 5px rgba(0, 255, 102, 0.1);
+      transition: all 0.2s;
     }
 
     .btn:hover {
-      background: #00ff66;
+      background: var(--primary);
       color: #000;
-      box-shadow: 0 0 12px #00ff66;
+      box-shadow: 0 0 10px var(--primary);
     }
 
-    .btn-warning { border-color: #ff9900; color: #ff9900; }
-    .btn-warning:hover { background: #ff9900; color: #000; box-shadow: 0 0 12px #ff9900; }
-    .btn-danger { border-color: #ff3333; color: #ff3333; }
-    .btn-danger:hover { background: #ff3333; color: #000; box-shadow: 0 0 12px #ff3333; }
+    .btn.warning { border-color: var(--warning); color: var(--warning); }
+    .btn.warning:hover { background: var(--warning); color: #000; box-shadow: 0 0 10px var(--warning); }
+    .btn.alert { border-color: var(--alert); color: var(--alert); }
+    .btn.alert:hover { background: var(--alert); color: #000; box-shadow: 0 0 10px var(--alert); }
 
-    /* Bottom Terminal */
+    /* Bottom Terminal Panel */
     .terminal-panel {
-      height: 150px;
+      height: 140px;
       border: 1px solid rgba(0, 255, 102, 0.4);
-      background: rgba(0, 10, 2, 0.9);
+      background: rgba(0, 10, 3, 0.9);
       display: flex;
       flex-direction: column;
-      box-shadow: inset 0 0 15px rgba(0, 255, 102, 0.1);
     }
 
     .terminal-header {
@@ -287,252 +289,266 @@
       border-bottom: 1px solid rgba(0, 255, 102, 0.3);
       display: flex;
       justify-content: space-between;
-      color: #00aa44;
+      color: var(--primary-dim);
     }
-
-    .term-status { color: #ff3333; animation: pulse 1s infinite alternate; }
 
     .terminal-body {
       flex: 1;
-      padding: 8px 10px;
+      padding: 8px;
       overflow-y: auto;
       font-size: 0.72rem;
       line-height: 1.4;
-      scrollbar-width: thin;
-      scrollbar-color: #00ff66 #001100;
     }
 
-    .terminal-body::-webkit-scrollbar { width: 5px; }
-    .terminal-body::-webkit-scrollbar-track { background: #001100; }
-    .terminal-body::-webkit-scrollbar-thumb { background: #00ff66; }
+    .log-line { margin-bottom: 2px; }
+    .log-line .ts { color: var(--primary-dim); margin-right: 6px; }
+    .log-line.warn { color: var(--warning); }
+    .log-line.alert { color: var(--alert); }
+    .log-line.success { color: #00ffff; }
 
-    .term-line { margin-bottom: 2px; opacity: 0.9; }
-    .term-line.warn { color: #ff9900; }
-    .term-line.alert { color: #ff3333; font-weight: bold; }
-    .term-line.success { color: #00ffff; }
-
-    /* Responsive Design */
+    /* Responsive */
     @media (max-width: 800px) {
-      .main-content {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto 280px auto;
-      }
       body { overflow-y: auto; }
+      .main-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 300px auto;
+      }
     }
   </style>
 </head>
-<body>
-  <div class="crt-overlay"></div>
-
-  <div class="app-container">
+<body class="crt">
+  <div class="dashboard">
     <header class="header">
-      <div class="header-title">
-        <span class="sub">[ SYS_OVERRIDE // VISUAL SIMULATION ]</span>
-        <h1>CYBER COMMAND CENTER</h1>
+      <div>
+        <div class="header-tag">[ SYS_OVERRIDE // VISUAL SIMULATION ]</div>
+        <div class="header-title">CYBER COMMAND CENTER</div>
       </div>
       <div class="header-status">
-        <div class="status-badge"><span class="blink-dot"></span> STATUS: SIMULATION ACTIVE</div>
-        <div class="clock" id="utc-clock">00:00:00 UTC</div>
+        <div class="status-indicator">
+          <span class="pulse-dot"></span>
+          <span>STATUS: SIMULATION ACTIVE</span>
+        </div>
+        <div id="utc-clock">00:00:00 UTC</div>
       </div>
     </header>
 
-    <main class="main-content">
-      <section class="panel left-panel">
-        <h2>NETWORK NODES</h2>
+    <div class="main-grid">
+      <aside class="panel">
+        <div class="panel-title">NETWORK NODES</div>
         <div class="node-list">
           <div class="node-item">
             <span>NODE-01</span>
-            <span class="node-status"><span class="node-dot dot-online"></span> ONLINE</span>
+            <span class="node-tag">ONLINE</span>
           </div>
           <div class="node-item">
             <span>NODE-02</span>
-            <span class="node-status"><span class="node-dot dot-online"></span> ONLINE</span>
+            <span class="node-tag">ONLINE</span>
           </div>
-          <div class="node-item bypassed">
+          <div class="node-item warning">
             <span>NODE-03</span>
-            <span class="node-status"><span class="node-dot dot-bypassed"></span> BYPASSED</span>
+            <span class="node-tag">BYPASSED</span>
           </div>
           <div class="node-item">
             <span>NODE-04</span>
-            <span class="node-status"><span class="node-dot dot-lock"></span> SIGNAL LOCK</span>
+            <span class="node-tag">SIGNAL LOCK</span>
           </div>
-          <div class="node-item">
+          <div class="node-item warning">
             <span>NODE-05</span>
-            <span class="node-status"><span class="node-dot dot-buffering"></span> BUFFERING</span>
+            <span class="node-tag">BUFFERING</span>
           </div>
-          <div class="node-item offline">
+          <div class="node-item alert">
             <span>NODE-06</span>
-            <span class="node-status"><span class="node-dot dot-offline"></span> OFFLINE</span>
+            <span class="node-tag">OFFLINE</span>
           </div>
         </div>
-      </section>
+      </aside>
 
-      <section class="panel globe-panel">
+      <main class="panel center-panel">
         <div id="globe-container"></div>
         
-        <div class="globe-overlay-labels">
-          <div class="hud-tag">NODE-01</div>
-          <div class="hud-tag">NODE-07</div>
-          <div class="hud-tag">RELAY-A</div>
-          <div class="hud-tag alert">TARGET SIM</div>
+        <div class="hud-labels">
+          <div class="hud-chip">NODE-01</div>
+          <div class="hud-chip">NODE-07</div>
+          <div class="hud-chip">RELAY-A</div>
+          <div class="hud-chip alert">TARGET SIM</div>
         </div>
 
-        <div id="progress-container" class="hidden">
-          <div id="progress-label">TRACING SIGNAL...</div>
-          <div class="progress-bar-bg">
-            <div id="progress-bar-fill"></div>
+        <div class="progress-box" id="progress-box">
+          <div class="progress-title" id="progress-title">TRACING SIGNAL...</div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
           </div>
         </div>
-      </section>
+      </main>
 
-      <section class="panel right-panel">
-        <h2>SYSTEM CONTROL</h2>
+      <aside class="panel">
+        <div class="panel-title">SYSTEM CONTROL</div>
         <div class="control-buttons">
           <button class="btn" onclick="startSim()">START SIMULATION</button>
           <button class="btn" onclick="injectFeed()">INJECT LOOPED FEED</button>
           <button class="btn" onclick="runDiagnostic()">RUN DIAGNOSTIC</button>
-          <button class="btn btn-warning" onclick="traceSignal()">TRACE SIGNAL</button>
+          <button class="btn warning" onclick="traceSignal()">TRACE SIGNAL</button>
           <button class="btn" onclick="lockTarget()">LOCK TARGET</button>
-          <button class="btn btn-danger" onclick="resetSim()">RESET SIMULATION</button>
+          <button class="btn alert" onclick="resetSim()">RESET SIMULATION</button>
         </div>
-      </section>
-    </main>
+      </aside>
+    </div>
 
     <footer class="terminal-panel">
       <div class="terminal-header">
-        <span>TERMINAL LOG [SIMULATED DATA ONLY]</span>
-        <span class="term-status">REC ●</span>
+        <span>SIMULATED SYSTEM TERMINAL</span>
+        <span>CONSOLE ID: DEMO-8802</span>
       </div>
       <div class="terminal-body" id="terminal-body"></div>
     </footer>
   </div>
 
   <script>
-    // --- UTC Clock ---
+    // --- Clock Setup ---
     function updateClock() {
       const now = new Date();
-      const hours = String(now.getUTCHours()).padStart(2, '0');
-      const minutes = String(now.getUTCMinutes()).padStart(2, '0');
-      const seconds = String(now.getUTCSeconds()).padStart(2, '0');
-      document.getElementById('utc-clock').innerText = `${hours}:${minutes}:${seconds} UTC`;
+      const h = String(now.getUTCHours()).padStart(2, '0');
+      const m = String(now.getUTCMinutes()).padStart(2, '0');
+      const s = String(now.getUTCSeconds()).padStart(2, '0');
+      document.getElementById('utc-clock').innerText = `${h}:${m}:${s} UTC`;
     }
     setInterval(updateClock, 1000);
     updateClock();
 
-    // --- Terminal Logging ---
-    const termBody = document.getElementById('terminal-body');
+    // --- Terminal Logs ---
+    const term = document.getElementById('terminal-body');
 
-    function logTerminal(msg, type = 'normal') {
+    function addLog(msg, type = 'normal') {
       const now = new Date();
-      const timeStr = now.toISOString().substr(11, 8);
+      const ts = now.toTimeString().split(' ')[0];
       const div = document.createElement('div');
-      div.className = `term-line ${type}`;
-      div.innerText = `[${timeStr}] ${msg}`;
-      termBody.appendChild(div);
-      termBody.scrollTop = termBody.scrollHeight;
+      div.className = `log-line ${type}`;
+      div.innerHTML = `<span class="ts">[${ts}]</span> ${msg}`;
+      term.appendChild(div);
+      term.scrollTop = term.scrollHeight;
     }
 
-    logTerminal("Initializing visual subsystem...", "normal");
-    logTerminal("Connecting to simulated network grid...", "normal");
-    logTerminal("Visual render pipeline active.", "success");
+    addLog("Initializing visual simulation core...", "normal");
+    addLog("Grid renderer online. All real network interaction disabled.", "success");
 
-    // Background Terminal Noise Generator
+    // Random terminal background activity
     setInterval(() => {
-      const noise = [
-        "PING relay-04.sim.net [127.0.0.1] 32B :: ACK",
-        "BUFFER_CHK :: Memory block 0x8F04 optimal",
-        "ROUTER_ALT :: Node routing table synchronized",
-        "SEC_MON :: Zero intrusion attempts detected",
-        "SIM_TICK :: Virtual clock cycle delta +12ms"
+      const noises = [
+        "SYS_CHK :: Virtual memory bus optimal",
+        "SYNC :: Satellite frame loop synchronized",
+        "BUFFER_ALLOC :: 0x7F000000 dummy space clear",
+        "PING :: Relay node virtual ACK ok"
       ];
-      if (Math.random() > 0.65) {
-        logTerminal(noise[Math.floor(Math.random() * noise.length)], 'normal');
+      if (Math.random() > 0.7) {
+        addLog(noises[Math.floor(Math.random() * noises.length)], 'normal');
       }
     }, 3500);
 
-    // --- 3D Globe with Three.js ---
+    // --- 3D Globe Implementation (Three.js) ---
     let scene, camera, renderer, globeGroup;
     let isTracing = false;
 
     function initGlobe() {
       const container = document.getElementById('globe-container');
-      const width = container.clientWidth;
-      const height = container.clientHeight;
+      const w = container.clientWidth;
+      const h = container.clientHeight;
 
       scene = new THREE.Scene();
-      camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-      camera.position.z = 4.2;
+      camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 1000);
+      camera.position.z = 240;
 
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-      renderer.setSize(width, height);
-      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.setSize(w, h);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       container.appendChild(renderer.domElement);
 
       globeGroup = new THREE.Group();
       scene.add(globeGroup);
 
-      // Core Dark Globe
-      const sphereGeo = new THREE.SphereGeometry(1.6, 32, 32);
-      const sphereMat = new THREE.MeshBasicMaterial({ color: 0x011204 });
+      const radius = 75;
+
+      // Dark Sphere
+      const sphereGeo = new THREE.SphereGeometry(radius, 32, 32);
+      const sphereMat = new THREE.MeshBasicMaterial({ color: 0x011205 });
       globeGroup.add(new THREE.Mesh(sphereGeo, sphereMat));
 
-      // Wireframe Grid
-      const wireGeo = new THREE.SphereGeometry(1.61, 24, 24);
-      const wireMat = new THREE.MeshBasicMaterial({ color: 0x00ff66, wireframe: true, transparent: true, opacity: 0.25 });
+      // Wireframe Globe
+      const wireGeo = new THREE.SphereGeometry(radius + 0.2, 24, 24);
+      const wireMat = new THREE.MeshBasicMaterial({
+        color: 0x00ff66,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.2
+      });
       globeGroup.add(new THREE.Mesh(wireGeo, wireMat));
 
       // Atmosphere Glow
-      const atmosGeo = new THREE.SphereGeometry(1.75, 32, 32);
-      const atmosMat = new THREE.MeshBasicMaterial({ color: 0x00ff66, transparent: true, opacity: 0.08, side: THREE.BackSide });
+      const atmosGeo = new THREE.SphereGeometry(radius + 4, 32, 32);
+      const atmosMat = new THREE.MeshBasicMaterial({
+        color: 0x00ff66,
+        transparent: true,
+        opacity: 0.08,
+        side: THREE.BackSide
+      });
       globeGroup.add(new THREE.Mesh(atmosGeo, atmosMat));
 
-      // Simulated Location Nodes
+      // Demo Nodes (Lat / Lon)
       const nodes = [
-        { lat: 40.71, lng: -74.00, color: 0x00ff66 },  // Node 01
-        { lat: 51.50, lng: -0.12, color: 0x00ff66 },   // Node 07
-        { lat: 35.67, lng: 139.65, color: 0xff9900 },  // Relay A
-        { lat: -33.86, lng: 151.20, color: 0xff3333 }  // Target Sim
+        { name: "NODE-01", lat: 37.77, lon: -122.41, color: 0x00ff66 },
+        { name: "NODE-07", lat: 51.50, lon: -0.12, color: 0x00ff66 },
+        { name: "RELAY-A", lat: 35.67, lon: 139.65, color: 0xffaa00 },
+        { name: "TARGET SIM", lat: -33.86, lon: 151.20, color: 0xff3333 }
       ];
 
-      const vectors = nodes.map(n => {
-        const pos = latLngToVector3(n.lat, n.lng, 1.62);
-        
-        const markerGeo = new THREE.SphereGeometry(0.04, 12, 12);
-        const markerMat = new THREE.MeshBasicMaterial({ color: n.color });
-        const marker = new THREE.Mesh(markerGeo, markerMat);
+      function latLonToVec3(lat, lon, r) {
+        const phi = (90 - lat) * (Math.PI / 180);
+        const theta = (lon + 180) * (Math.PI / 180);
+        return new THREE.Vector3(
+          -(r * Math.sin(phi) * Math.cos(theta)),
+          r * Math.cos(phi),
+          r * Math.sin(phi) * Math.sin(theta)
+        );
+      }
+
+      const points = nodes.map(n => {
+        const pos = latLonToVec3(n.lat, n.lon, radius + 1);
+        const mGeo = new THREE.SphereGeometry(2, 12, 12);
+        const mMat = new THREE.MeshBasicMaterial({ color: n.color });
+        const marker = new THREE.Mesh(mGeo, mMat);
         marker.position.copy(pos);
         globeGroup.add(marker);
-
-        const ringGeo = new THREE.RingGeometry(0.06, 0.08, 16);
-        const ringMat = new THREE.MeshBasicMaterial({ color: n.color, side: THREE.DoubleSide, transparent: true, opacity: 0.7 });
-        const ring = new THREE.Mesh(ringGeo, ringMat);
-        ring.position.copy(pos);
-        ring.lookAt(0, 0, 0);
-        globeGroup.add(ring);
-
         return pos;
       });
 
       // Curved Connection Lines
-      for (let i = 0; i < vectors.length; i++) {
-        for (let j = i + 1; j < vectors.length; j++) {
-          const arc = createArc(vectors[i], vectors[j], (i === 2 || j === 3) ? 0xff9900 : 0x00ff66);
-          globeGroup.add(arc);
-        }
+      for (let i = 0; i < points.length; i++) {
+        const p1 = points[i];
+        const p2 = points[(i + 1) % points.length];
+
+        const mid = p1.clone().add(p2).multiplyScalar(0.5);
+        mid.normalize().multiplyScalar(radius + 25);
+
+        const curve = new THREE.QuadraticBezierCurve3(p1, mid, p2);
+        const curvePoints = curve.getPoints(40);
+        const cGeo = new THREE.BufferGeometry().setFromPoints(curvePoints);
+        const cMat = new THREE.LineBasicMaterial({
+          color: i % 2 === 0 ? 0x00ff66 : 0xffaa00,
+          transparent: true,
+          opacity: 0.6
+        });
+        globeGroup.add(new THREE.Line(cGeo, cMat));
       }
 
-      // Drag Rotation Controls
+      // Drag Controls
       let isDragging = false;
       let prevMouse = { x: 0, y: 0 };
 
-      container.addEventListener('mousedown', (e) => {
+      container.addEventListener('pointerdown', (e) => {
         isDragging = true;
         prevMouse = { x: e.clientX, y: e.clientY };
       });
 
-      window.addEventListener('mouseup', () => isDragging = false);
-
-      window.addEventListener('mousemove', (e) => {
+      window.addEventListener('pointermove', (e) => {
         if (!isDragging) return;
         const dx = e.clientX - prevMouse.x;
         const dy = e.clientY - prevMouse.y;
@@ -541,127 +557,102 @@
         prevMouse = { x: e.clientX, y: e.clientY };
       });
 
+      window.addEventListener('pointerup', () => isDragging = false);
+
       // Mouse Wheel Zoom
       container.addEventListener('wheel', (e) => {
         e.preventDefault();
-        camera.position.z += e.deltaY * 0.003;
-        camera.position.z = Math.min(Math.max(camera.position.z, 2.5), 6.5);
+        camera.position.z += e.deltaY * 0.15;
+        camera.position.z = Math.max(120, Math.min(380, camera.position.z));
       }, { passive: false });
 
-      // Resize Handler
+      // Resize
       window.addEventListener('resize', () => {
-        const w = container.clientWidth;
-        const h = container.clientHeight;
-        camera.aspect = w / h;
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        camera.aspect = width / height;
         camera.updateProjectionMatrix();
-        renderer.setSize(w, h);
+        renderer.setSize(width, height);
       });
 
-      // Animation Loop
-      function animate() {
-        requestAnimationFrame(animate);
+      // Render Loop
+      function render() {
+        requestAnimationFrame(render);
         if (!isDragging) {
-          globeGroup.rotation.y += isTracing ? 0.012 : 0.002;
+          globeGroup.rotation.y += isTracing ? 0.015 : 0.002;
         }
         renderer.render(scene, camera);
       }
-      animate();
-    }
-
-    function latLngToVector3(lat, lng, radius) {
-      const phi = (90 - lat) * (Math.PI / 180);
-      const theta = (lng + 180) * (Math.PI / 180);
-      return new THREE.Vector3(
-        -(radius * Math.sin(phi) * Math.cos(theta)),
-        (radius * Math.cos(phi)),
-        (radius * Math.sin(phi) * Math.sin(theta))
-      );
-    }
-
-    function createArc(v1, v2, colorVal) {
-      const mid = v1.clone().add(v2).multiplyScalar(0.5);
-      const dist = v1.distanceTo(v2);
-      mid.normalize().multiplyScalar(1.62 + dist * 0.3);
-      const curve = new THREE.QuadraticBezierCurve3(v1, mid, v2);
-      const points = curve.getPoints(40);
-      const geometry = new THREE.BufferGeometry().setFromPoints(points);
-      const material = new THREE.LineBasicMaterial({ color: colorVal, transparent: true, opacity: 0.6 });
-      return new THREE.Line(geometry, material);
+      render();
     }
 
     window.onload = initGlobe;
 
-    // --- Control Button Logic ---
+    // --- Interactive Control Actions ---
     function startSim() {
-      logTerminal("INITIATING VIRTUAL SIMULATION PIPELINE...", "success");
-      logTerminal("SYNCHRONIZING VIRTUAL SATELLITE NODES [NODE-01 to NODE-06]...", "normal");
-      logTerminal("SIMULATION ENGINES OPERATIONAL.", "success");
+      addLog("STARTING FULL SIMULATION ROUTINE...", "success");
+      addLog("VIRTUAL GRID ROUTING SYNCHRONIZED.", "normal");
     }
 
     function injectFeed() {
-      logTerminal("INJECTING LOOPED VISUAL DATAFEED // CHANNEL-09", "warn");
-      logTerminal("STREAM ENCRYPTED WITH DUMMY AES-256 KEYS", "normal");
-      logTerminal("FEED RENDERER: 60 FPS SIMULATED MATRIX BINDING COMPLETE", "success");
+      addLog("INJECTING LOOPED VISUAL DATASTREAM...", "warn");
+      addLog("CHANNEL-01 FEED OVERLAY: ONLINE", "normal");
     }
 
     function runDiagnostic() {
-      logTerminal("RUNNING SYSTEM DIAGNOSTIC SCAN...", "warn");
-      setTimeout(() => logTerminal("CPU CORE 0-7: OPTIMAL (12% LOAD)", "normal"), 400);
-      setTimeout(() => logTerminal("VIRTUAL MEMORY: 16480 MB ALLOCATED / FREE", "normal"), 800);
-      setTimeout(() => logTerminal("SIMULATED DEFENSES: ACTIVE & UNCOMPROMISED", "success"), 1200);
+      addLog("DIAGNOSTIC RUN INITIATED...", "warn");
+      setTimeout(() => addLog("CPU CORES 1-8: 100% HEALTHY", "normal"), 300);
+      setTimeout(() => addLog("SIMULATED FIREWALL: 0 VULNERABILITIES", "success"), 600);
     }
 
     function traceSignal() {
       if (isTracing) return;
       isTracing = true;
-      const progressContainer = document.getElementById('progress-container');
-      const progressBar = document.getElementById('progress-bar-fill');
-      const progressLabel = document.getElementById('progress-label');
 
-      progressContainer.classList.remove('hidden');
-      progressBar.style.width = '0%';
-      progressLabel.innerText = "TRACING SIGNAL...";
+      const box = document.getElementById('progress-box');
+      const fill = document.getElementById('progress-fill');
+      const title = document.getElementById('progress-title');
 
-      logTerminal("SIGNAL TRACE INITIATED :: HOPPING PROXIES...", "warn");
+      box.style.display = 'block';
+      fill.style.width = '0%';
+      title.innerText = "TRACING SIGNAL...";
 
-      let progress = 0;
+      addLog("SIGNAL TRACE INITIATED :: HOPPING PROXIES...", "warn");
+
+      let pct = 0;
       const interval = setInterval(() => {
-        progress += Math.floor(Math.random() * 15) + 6;
-        if (progress > 100) progress = 100;
+        pct += Math.floor(Math.random() * 12) + 8;
+        if (pct > 100) pct = 100;
+        fill.style.width = pct + '%';
 
-        progressBar.style.width = progress + '%';
-        if (progress < 35) {
-          logTerminal(`TRACE HOP 1: NODE-01 [192.0.2.${progress + 10}] OK`, "normal");
-        } else if (progress < 70) {
-          logTerminal(`TRACE HOP 2: RELAY-A [198.51.100.${progress}] OK`, "normal");
-        } else if (progress < 100) {
-          logTerminal(`TRACE HOP 3: TARGET SIM [203.0.113.${progress}] RESOLVING...`, "warn");
-        } else {
+        if (pct === 30) addLog("HOP 1: NODE-01 [192.0.2.45] -> ACK", "normal");
+        if (pct === 60) addLog("HOP 2: RELAY-A [198.51.100.12] -> ACK", "normal");
+        if (pct === 90) addLog("HOP 3: TARGET SIM [203.0.113.89] -> RESOLVING...", "warn");
+
+        if (pct >= 100) {
           clearInterval(interval);
           setTimeout(() => {
-            progressLabel.innerText = "TRACE COMPLETE // SIMULATION ONLY";
-            logTerminal("TRACE COMPLETE // TARGET LOCATION RESOLVED (SIMULATED DATA)", "alert");
-            logTerminal("DISCLAIMER: NO REAL NETWORK ACCESS OR TRACING WAS PERFORMED.", "success");
+            title.innerText = "TRACE COMPLETE // SIMULATION ONLY";
+            addLog("TRACE COMPLETE // SIMULATION ONLY", "alert");
+            addLog("ALL DATA & IP ADDRESSES SHOWN ARE FICTIONAL DEMO DATA.", "success");
             setTimeout(() => {
-              progressContainer.classList.add('hidden');
+              box.style.display = 'none';
               isTracing = false;
             }, 3000);
           }, 400);
         }
-      }, 250);
+      }, 200);
     }
 
     function lockTarget() {
-      logTerminal("TARGET SIM LOCK ACQUIRED.", "alert");
-      logTerminal("GRID COORDINATES LOCKED: -33.8688, 151.2093 (DEMO LOCATION)", "warn");
+      addLog("TARGET SIM LOCK CONFIRMED.", "alert");
+      addLog("GRID VECTOR LOCKED: [33.86° S, 151.20° E] (DEMO DATA)", "warn");
     }
 
     function resetSim() {
-      termBody.innerHTML = '';
-      logTerminal("SIMULATION STATE RESET TO DEFAULT.", "success");
-      logTerminal("SYS_OVERRIDE INITIALIZED.", "normal");
+      term.innerHTML = '';
+      addLog("SYSTEM SIMULATION RESET TO INITIAL STATE.", "success");
     }
   </script>
 </body>
 </html>
-    
