@@ -1,290 +1,1146 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CYBER_OS v9.9 - OVERRIDE TERMINAL</title>
-  <style>
-    :root {
-      --green: #00ff66;
-      --dark-green: #003311;
-      --red: #ff3333;
-      --bg: #050805;
-      --panel-bg: rgba(0, 20, 5, 0.85);
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLACK VEIL // CYBER COMMAND</title>
+    <style>
+        :root {
+            --accent: #00f3ff;
+            --accent-glow: rgba(0, 243, 255, 0.4);
+            --accent-secondary: #0077ff;
+            --bg-dark: #03070d;
+            --bg-glass: rgba(8, 16, 28, 0.78);
+            --border-glass: rgba(0, 243, 255, 0.25);
+            --text-main: #e0f7fc;
+            --text-dim: #5a7d9a;
+            --danger: #ff0055;
+            --warning: #ffaa00;
+            --success: #00ff88;
+            --font-mono: 'Consolas', 'Courier New', Monaco, monospace;
+        }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', monospace; }
-    
-    body {
-      background-color: var(--bg);
-      color: var(--green);
-      height: 100vh;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
+        /* Theme Overrides */
+        [data-theme="red"] {
+            --accent: #ff0055;
+            --accent-glow: rgba(255, 0, 85, 0.4);
+            --accent-secondary: #ff5500;
+            --bg-glass: rgba(28, 8, 12, 0.78);
+            --border-glass: rgba(255, 0, 85, 0.3);
+        }
+        [data-theme="purple"] {
+            --accent: #bd00ff;
+            --accent-glow: rgba(189, 0, 255, 0.4);
+            --accent-secondary: #7000ff;
+            --bg-glass: rgba(20, 8, 28, 0.78);
+            --border-glass: rgba(189, 0, 255, 0.3);
+        }
+        [data-theme="ice"] {
+            --accent: #00a2ff;
+            --accent-glow: rgba(0, 162, 255, 0.4);
+            --accent-secondary: #00e1ff;
+            --bg-glass: rgba(8, 20, 30, 0.78);
+            --border-glass: rgba(0, 162, 255, 0.3);
+        }
+        [data-theme="green"] {
+            --accent: #00ff66;
+            --accent-glow: rgba(0, 255, 102, 0.4);
+            --accent-secondary: #00b347;
+            --bg-glass: rgba(8, 28, 15, 0.78);
+            --border-glass: rgba(0, 255, 102, 0.3);
+        }
 
-    /* Scanline effect */
-    body::before {
-      content: " ";
-      position: absolute;
-      top: 0; left: 0; bottom: 0; right: 0;
-      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-      z-index: 100;
-      background-size: 100% 4px, 6px 100%;
-      pointer-events: none;
-    }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
 
-    header {
-      border-bottom: 2px solid var(--green);
-      padding: 10px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #001100;
-    }
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
 
-    .main-grid {
-      display: grid;
-      grid-template-columns: 280px 1fr 320px;
-      gap: 10px;
-      padding: 10px;
-      flex-grow: 1;
-      height: calc(100vh - 60px);
-    }
+        /* Scanline Overlay Effect */
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: 999;
+            background: linear-gradient(
+                rgba(18, 16, 16, 0) 50%, 
+                rgba(0, 0, 0, 0.25) 50%
+            ), linear-gradient(
+                90deg,
+                rgba(255, 0, 0, 0.03),
+                rgba(0, 255, 0, 0.01),
+                rgba(0, 0, 255, 0.03)
+            );
+            background-size: 100% 3px, 6px 100%;
+            opacity: 0.7;
+        }
 
-    .panel {
-      border: 1px solid var(--green);
-      background: var(--panel-bg);
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 0 10px rgba(0, 255, 102, 0.1);
-    }
+        /* Boot Screen Overlay */
+        #boot-screen {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.8s ease;
+        }
 
-    .panel-title {
-      border-bottom: 1px solid var(--green);
-      padding-bottom: 5px;
-      margin-bottom: 10px;
-      font-weight: bold;
-      letter-spacing: 2px;
-    }
+        .boot-loader {
+            width: 320px;
+            background: rgba(255,255,255,0.1);
+            height: 4px;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
 
-    /* Buttons */
-    .btn {
-      background: #002200;
-      color: var(--green);
-      border: 1px solid var(--green);
-      padding: 10px;
-      margin: 5px 0;
-      cursor: pointer;
-      font-weight: bold;
-      text-transform: uppercase;
-      transition: all 0.2s;
-    }
-    .btn:hover {
-      background: var(--green);
-      color: #000;
-      box-shadow: 0 0 10px var(--green);
-    }
+        .boot-bar {
+            width: 0%;
+            height: 100%;
+            background: var(--accent);
+            box-shadow: 0 0 10px var(--accent);
+            transition: width 0.05s linear;
+        }
 
-    /* Console logs */
-    #console-log {
-      flex-grow: 1;
-      overflow-y: auto;
-      font-size: 13px;
-      line-height: 1.4;
-      color: #00cc55;
-    }
+        /* Command Center Layout */
+        .app-container {
+            display: grid;
+            grid-template-rows: 50px 1fr 32px;
+            height: 100vh;
+            padding: 8px;
+            gap: 8px;
+        }
 
-    /* CCTV Feed Grid */
-    .cctv-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      height: 220px;
-      margin-bottom: 10px;
-    }
-    .cam-box {
-      border: 1px dashed var(--green);
-      background: #000;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-    }
-    .cam-label { position: absolute; top: 4px; left: 4px; color: var(--red); font-weight: bold; }
+        header {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            box-shadow: 0 0 15px var(--accent-glow);
+            border-radius: 4px;
+        }
 
-    /* Modals */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      background: #000;
-      border: 2px solid var(--green);
-      padding: 20px;
-      z-index: 200;
-      box-shadow: 0 0 30px rgba(0,255,102,0.4);
-      text-align: center;
-    }
-    canvas { background: #000; display: block; margin: 10px auto; }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            color: var(--accent);
+            text-shadow: 0 0 8px var(--accent);
+        }
 
-    /* Red Alert Overlay */
-    #red-alert {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(255, 0, 0, 0.4);
-      z-index: 300;
-      pointer-events: none;
-      animation: flash 0.5s infinite alternate;
-    }
-    @keyframes flash { from { opacity: 0.2; } to { opacity: 1; } }
-  </style>
+        .brand-badge {
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            background: rgba(0, 243, 255, 0.15);
+            border: 1px solid var(--accent);
+            border-radius: 3px;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.8rem;
+        }
+
+        .btn {
+            background: rgba(0, 243, 255, 0.08);
+            border: 1px solid var(--border-glass);
+            color: var(--text-main);
+            padding: 6px 12px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 3px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* Main Grid */
+        .main-stage {
+            display: grid;
+            grid-template-columns: 320px 1fr 340px;
+            gap: 8px;
+            overflow: hidden;
+        }
+
+        .panel {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            backdrop-filter: blur(8px);
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .panel-header {
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid var(--border-glass);
+            padding: 8px 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            color: var(--accent);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-body {
+            padding: 10px;
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Left Side: Command Matrix & Code Forge */
+        .matrix-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+        }
+
+        .matrix-btn {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-dim);
+            font-size: 0.65rem;
+            padding: 8px;
+            text-align: left;
+            cursor: pointer;
+            border-radius: 2px;
+            transition: all 0.15s;
+        }
+
+        .matrix-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(0, 243, 255, 0.05);
+        }
+
+        .terminal-box {
+            background: #000;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            height: 140px;
+            font-size: 0.68rem;
+            padding: 8px;
+            overflow-y: auto;
+            color: var(--text-dim);
+            line-height: 1.4;
+            border-radius: 3px;
+        }
+
+        .terminal-log {
+            margin-bottom: 4px;
+        }
+        .terminal-log.sys { color: var(--accent); }
+        .terminal-log.warn { color: var(--warning); }
+        .terminal-log.err { color: var(--danger); }
+
+        .code-forge-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        select, input[type="range"] {
+            background: #000;
+            border: 1px solid var(--border-glass);
+            color: var(--text-main);
+            padding: 4px;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            border-radius: 2px;
+        }
+
+        .code-editor {
+            background: rgba(0, 0, 0, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.65rem;
+            padding: 8px;
+            color: #00ffaa;
+            height: 180px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            border-radius: 3px;
+            position: relative;
+        }
+
+        .code-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+            font-size: 0.65rem;
+            background: rgba(0,0,0,0.4);
+            padding: 6px;
+            border-radius: 3px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* Center Stage: Globe & Visuals */
+        .globe-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background: radial-gradient(circle, rgba(0, 243, 255, 0.05) 0%, rgba(3, 7, 13, 0.9) 70%);
+        }
+
+        #globeCanvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .globe-hud-overlay {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 16px;
+        }
+
+        .hud-top {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+
+        .hud-target-card {
+            background: var(--bg-glass);
+            border: 1px solid var(--accent);
+            padding: 10px;
+            border-radius: 4px;
+            width: 220px;
+            box-shadow: 0 0 15px var(--accent-glow);
+            pointer-events: auto;
+        }
+
+        /* Right Side: Metrics & Threat Simulator & VEGA AI */
+        .metric-card {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 8px;
+            border-radius: 3px;
+        }
+
+        .metric-title {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        .progress-bar-bg {
+            background: rgba(255, 255, 255, 0.1);
+            height: 6px;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--accent);
+            width: 50%;
+            box-shadow: 0 0 8px var(--accent);
+            transition: width 0.4s ease;
+        }
+
+        .threat-item {
+            background: rgba(255, 0, 85, 0.08);
+            border-left: 3px solid var(--danger);
+            padding: 6px 8px;
+            font-size: 0.65rem;
+            margin-bottom: 6px;
+            border-radius: 0 3px 3px 0;
+        }
+
+        .vega-ai-box {
+            background: rgba(0, 243, 255, 0.03);
+            border: 1px solid var(--border-glass);
+            padding: 8px;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            line-height: 1.4;
+            min-height: 90px;
+        }
+
+        /* Checkpoint Overlay Banner */
+        #checkpoint-banner {
+            position: fixed;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: rgba(8, 16, 28, 0.95);
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 40px var(--accent-glow);
+            padding: 24px 40px;
+            border-radius: 6px;
+            text-align: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #checkpoint-banner.active {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .pulse-ring {
+            width: 60px;
+            height: 60px;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            margin: 0 auto 12px;
+            animation: pulseRing 1.2s infinite;
+        }
+
+        @keyframes pulseRing {
+            0% { transform: scale(0.8); opacity: 1; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+
+        /* Bottom Ticker Bar */
+        footer {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            backdrop-filter: blur(8px);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            font-size: 0.68rem;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .ticker-wrap {
+            display: flex;
+            gap: 24px;
+            animation: ticker 30s linear infinite;
+        }
+
+        @keyframes ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Command Palette Modal */
+        #cmd-palette {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            z-index: 20000;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 15vh;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+
+        #cmd-palette.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .cmd-modal {
+            background: var(--bg-dark);
+            border: 1px solid var(--accent);
+            width: 500px;
+            border-radius: 6px;
+            box-shadow: 0 0 30px var(--accent-glow);
+            overflow: hidden;
+        }
+
+        .cmd-input {
+            width: 100%;
+            padding: 14px;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid var(--border-glass);
+            color: var(--accent);
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .cmd-list {
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .cmd-item {
+            padding: 10px 14px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .cmd-item:hover {
+            background: var(--accent);
+            color: #000;
+        }
+
+        /* Disclaimer badge */
+        .disclaimer-tag {
+            font-size: 0.6rem;
+            color: var(--text-dim);
+            letter-spacing: 1px;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 1024px) {
+            .main-stage {
+                grid-template-columns: 280px 1fr;
+            }
+            .panel.right-panel { display: none; }
+        }
+    </style>
 </head>
 <body>
 
-  <header>
-    <div>[SYS_OVERRIDE_v9.9] ACTIVE CONNECTION</div>
-    <div id="clock">00:00:00 UTC</div>
-  </header>
+    <div class="scanlines"></div>
 
-  <div class="main-grid">
-    <div class="panel">
-      <div class="panel-title">> COMMANDS</div>
-      <button class="btn" onclick="toggleModal('globe-modal')">🌐 OPEN 3D GLOBE MAP</button>
-      <button class="btn" onclick="triggerOverride()">🔓 BYPASS FIREWALL</button>
-      <button class="btn" onclick="toggleRedAlert()">🚨 EMERGENCY LOCKDOWN</button>
-      <button class="btn" onclick="clearLogs()">🧹 CLEAR LOGS</button>
-      
-      <div class="panel-title" style="margin-top: 20px;">> SYSTEM STATUS</div>
-      <p style="font-size: 12px; margin-bottom: 5px;">CPU: <span id="cpu-usage">42%</span></p>
-      <p style="font-size: 12px; margin-bottom: 5px;">RAM: 14.2 / 32 GB</p>
-      <p style="font-size: 12px;">NODES: 64 ACTIVE</p>
+    <div id="boot-screen">
+        <div style="font-size: 1.2rem; color: var(--accent); letter-spacing: 4px; font-weight: bold;">INITIALIZING BLACK VEIL...</div>
+        <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: 8px;" id="boot-text">LOADING SIMULATION KERNEL v4.9.0</div>
+        <div class="boot-loader">
+            <div class="boot-bar" id="boot-bar"></div>
+        </div>
     </div>
 
-    <div class="panel">
-      <div class="panel-title">> CCTV SURVEILLANCE OVERRIDE</div>
-      <div class="cctv-grid">
-        <div class="cam-box"><span class="cam-label">CAM_01 [LIVE]</span>MAIN GATE</div>
-        <div class="cam-box" style="border-color: var(--red);"><span class="cam-label">CAM_02 [BYPASSED]</span>FEED OVERRIDDEN</div>
-        <div class="cam-box"><span class="cam-label">CAM_03 [LOOPING]</span>SERVER ROOM</div>
-        <div class="cam-box"><span class="cam-label">CAM_04 [JAMMED]</span>NO SIGNAL</div>
-      </div>
-
-      <div class="panel-title">> REALTIME TERMINAL DATA</div>
-      <div id="console-log"></div>
+    <div id="checkpoint-banner">
+        <div class="pulse-ring"></div>
+        <div id="checkpoint-title" style="color: var(--accent); font-size: 1.1rem; font-weight: bold; letter-spacing: 2px;">
+            // ===== 500 LINES COMPLETE =====
+        </div>
+        <div style="color: var(--text-main); font-size: 0.75rem; margin-top: 6px;">SYNTHETIC CODE CHECKPOINT CREATED</div>
+        <div id="checkpoint-time" style="color: var(--text-dim); font-size: 0.65rem; margin-top: 4px;">TIMESTAMP: --:--:--</div>
     </div>
 
-    <div class="panel">
-      <div class="panel-title">> ACTIVE PAYLOAD</div>
-      <div id="code-stream" style="font-size: 10px; color: var(--green); opacity: 0.8; overflow: hidden; height: 100%;"></div>
+    <div id="cmd-palette">
+        <div class="cmd-modal">
+            <input type="text" class="cmd-input" id="cmd-input" placeholder="Type a command or search... (ESC to exit)" />
+            <div class="cmd-list" id="cmd-list">
+                <div class="cmd-item" onclick="triggerPaletteCmd('event')"><span>&gt; GENERATE EVENT</span><span>CTRL+G</span></div>
+                <div class="cmd-item" onclick="triggerPaletteCmd('code')"><span>&gt; GENERATE SYNTHETIC CODE</span><span>FORGE</span></div>
+                <div class="cmd-item" onclick="triggerPaletteCmd('ai')"><span>&gt; RUN VEGA AI ANALYSIS</span><span>CTRL+A</span></div>
+                <div class="cmd-item" onclick="triggerPaletteCmd('clear')"><span>&gt; CLEAR LOG TERMINAL</span><span>CTRL+L</span></div>
+                <div class="cmd-item" onclick="triggerPaletteCmd('theme')"><span>&gt; TOGGLE COLOR THEME</span><span>MODE</span></div>
+                <div class="cmd-item" onclick="triggerPaletteCmd('checkpoint')"><span>&gt; CREATE CHECKPOINT</span><span>SAVE</span></div>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <div id="globe-modal" class="modal">
-    <h3>GLOBAL SATELLITE NETWORK (3D TRACKER)</h3>
-    <canvas id="globeCanvas" width="400" height="400"></canvas>
-    <button class="btn" onclick="toggleModal('globe-modal')">CLOSE MAP</button>
-  </div>
+    <div class="app-container">
+        
+        <header>
+            <div class="brand">
+                <span>BLACK VEIL</span>
+                <span style="color: var(--text-dim);">//</span>
+                <span>CYBER COMMAND</span>
+                <span class="brand-badge">SIMULATION CORE</span>
+            </div>
+            
+            <div class="disclaimer-tag">FICTIONAL CYBER SIMULATION // NO REAL TARGETS</div>
 
-  <div id="red-alert"></div>
+            <div class="header-controls">
+                <button class="btn" onclick="toggleTheme()">THEME</button>
+                <button class="btn" onclick="openCmdPalette()">CMD (CTRL+K)</button>
+                <div id="clock" style="color: var(--accent); font-weight: bold;">00:00:00 UTC</div>
+            </div>
+        </header>
 
-  <script>
-    // Live Clock
-    setInterval(() => {
-      document.getElementById('clock').innerText = new Date().toUTCString().split(' ')[4] + ' UTC';
-      document.getElementById('cpu-usage').innerText = Math.floor(Math.random() * 40 + 40) + '%';
-    }, 1000);
+        <div class="main-stage">
+            
+            <div class="panel">
+                <div class="panel-header">
+                    <span>COMMAND MATRIX</span>
+                    <span style="font-size: 0.6rem; color: var(--success);">● ACTIVE</span>
+                </div>
+                <div class="panel-body">
+                    <div class="matrix-buttons">
+                        <button class="matrix-btn" onclick="logTerminal('SYSTEM REBOOT INITIATED', 'warn')">[ SYSTEM BOOT ]</button>
+                        <button class="matrix-btn" onclick="generateSimEvent()">[ GENERATE EVENT ]</button>
+                        <button class="matrix-btn" onclick="generateCodeBatch()">[ CODE FORGE ]</button>
+                        <button class="matrix-btn" onclick="triggerVegaAI()">[ AI ANALYZER ]</button>
+                        <button class="matrix-btn" onclick="randomizeGlobe()">[ ROTATE GLOBE ]</button>
+                        <button class="matrix-btn" onclick="clearTerminal()">[ CLEAR LOGS ]</button>
+                    </div>
 
-    // Dynamic Fake Logs Generator
-    const logsContainer = document.getElementById('console-log');
-    const fakeLogs = [
-      "Connecting to proxy node 192.168.1.104...",
-      "Injecting shellcode into memory address 0x7FFF...",
-      "Bypassing SSL handshake certificate check...",
-      "Intercepting RTSP stream port 554...",
-      "Packet sniffing: 1024 packets routed.",
-      "Access Granted to Admin Module.",
-      "ALERT: Intrusion Detection System triggered on Zone B."
-    ];
+                    <div style="font-size: 0.65rem; color: var(--accent); margin-top: 4px;">TERMINAL OUTPUT</div>
+                    <div class="terminal-box" id="terminal">
+                        <div class="terminal-log sys">&gt; INITIALIZING BLACK VEIL SIMULATION CORE...</div>
+                        <div class="terminal-log sys">&gt; VIRTUAL ENVIRONMENT READY.</div>
+                        <div class="terminal-log">&gt; SYNTHETIC NODES ONLINE: 1,024</div>
+                    </div>
 
-    setInterval(() => {
-      const p = document.createElement('div');
-      const time = new Date().toISOString().substr(11, 8);
-      p.innerText = `[${time}] ${fakeLogs[Math.floor(Math.random() * fakeLogs.length)]}`;
-      logsContainer.appendChild(p);
-      logsContainer.scrollTop = logsContainer.scrollHeight;
-    }, 800);
+                    <div style="font-size: 0.65rem; color: var(--accent); margin-top: 4px;">CODE FORGE (SYNTHETIC)</div>
+                    <div class="code-forge-controls">
+                        <select id="code-lang">
+                            <option value="python">Python</option>
+                            <option value="javascript">JavaScript</option>
+                            <option value="cpp">C++</option>
+                            <option value="rust">Rust</option>
+                            <option value="sql">SQL</option>
+                        </select>
+                        <button class="btn" style="padding: 3px 8px; font-size:0.65rem;" onclick="generateCodeBatch()">+100 LINES</button>
+                        <button class="btn" style="padding: 3px 8px; font-size:0.65rem;" onclick="clearCodeForge()">CLEAR</button>
+                    </div>
 
-    // Fake Matrix Code Stream (Right Column)
-    const codeStream = document.getElementById('code-stream');
-    setInterval(() => {
-      let line = "";
-      for (let i = 0; i < 30; i++) line += String.fromCharCode(0x30A0 + Math.random() * 96);
-      codeStream.innerText = line + "\n" + codeStream.innerText.slice(0, 1000);
-    }, 100);
+                    <div class="code-editor" id="code-editor">// HARmless SYNTHETIC CODE GENERATOR READY.
+// CLICK '+100 LINES' TO SIMULATE CODE GENERATION.</div>
 
-    // Actions
-    function toggleModal(id) {
-      const el = document.getElementById(id);
-      el.style.display = el.style.display === 'block' ? 'none' : 'block';
-    }
+                    <div class="code-stats">
+                        <div>LINES: <span id="stat-lines" style="color:var(--accent);">000000</span></div>
+                        <div>TOKENS: <span id="stat-tokens" style="color:var(--accent);">000000</span></div>
+                        <div>CHECKPOINTS: <span id="stat-checkpoints" style="color:var(--accent);">0</span></div>
+                    </div>
+                </div>
+            </div>
 
-    function triggerOverride() {
-      alert("OVERRIDE INITIATED: Accessing high-security databases...");
-    }
+            <div class="panel" style="background: transparent; border: none;">
+                <div class="globe-container">
+                    <canvas id="globeCanvas"></canvas>
+                    
+                    <div class="globe-hud-overlay">
+                        <div class="hud-top">
+                            <div>SIMULATION TARGET: <span style="color:var(--accent);">SYNTHETIC-GRID-99</span></div>
+                            <div>ORBITAL SATELLITES: <span style="color:var(--accent);">12 ACTIVE</span></div>
+                        </div>
 
-    function clearLogs() {
-      logsContainer.innerHTML = '';
-    }
+                        <div style="display:flex; justify-shadow:space-between; align-items:flex-end;">
+                            <div class="hud-target-card">
+                                <div style="font-size: 0.65rem; color: var(--accent); font-weight: bold;">NODE TELEMETRY</div>
+                                <div style="font-size: 0.75rem; font-weight: bold; margin-top: 4px;" id="node-name">ALPHA-SECTOR-01</div>
+                                <div style="font-size: 0.65rem; color: var(--text-dim); margin-top: 2px;" id="node-coords">LAT: 35.6895 | LON: 139.6917</div>
+                                <div style="font-size: 0.65rem; color: var(--success); margin-top: 4px;">STATUS: ENCRYPTED // SYNTHETIC</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    function toggleRedAlert() {
-      const el = document.getElementById('red-alert');
-      el.style.display = el.style.display === 'block' ? 'none' : 'block';
-    }
+            <div class="panel right-panel">
+                <div class="panel-header">
+                    <span>LIVE SIMULATION METRICS</span>
+                    <span style="font-size: 0.6rem; color: var(--accent);">VEGA v2.4</span>
+                </div>
+                <div class="panel-body">
+                    
+                    <div class="metric-card">
+                        <div class="metric-title">
+                            <span>SIMULATED CPU LOAD</span>
+                            <span id="val-cpu">42%</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" id="bar-cpu" style="width: 42%;"></div>
+                        </div>
+                    </div>
 
-    // Canvas 3D Globe Renderer (Pure JavaScript)
-    const canvas = document.getElementById('globeCanvas');
-    const ctx = canvas.getContext('2d');
-    let angle = 0;
+                    <div class="metric-card">
+                        <div class="metric-title">
+                            <span>VIRTUAL MEMORY ALLOCATION</span>
+                            <span id="val-ram">68%</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" id="bar-ram" style="width: 68%;"></div>
+                        </div>
+                    </div>
 
-    function drawGlobe() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const cx = 200, cy = 200, radius = 140;
-      
-      ctx.strokeStyle = '#00ff66';
-      ctx.lineWidth = 1;
+                    <div class="metric-card">
+                        <div class="metric-title">
+                            <span>SYNTHETIC DATA STREAM</span>
+                            <span id="val-data">1.2 GB/s</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" id="bar-data" style="width: 80%;"></div>
+                        </div>
+                    </div>
 
-      // Draw Sphere outline
-      ctx.beginPath();
-      ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-      ctx.stroke();
+                    <div style="font-size: 0.65rem; color: var(--accent); margin-top: 4px;">THREAT SIMULATOR (FICTIONAL)</div>
+                    <div id="threat-container">
+                        <div class="threat-item">
+                            <div style="font-weight: bold; color: var(--warning);">[LOW PRIORITY] SYNTHETIC HANDSHAKE</div>
+                            <div style="color: var(--text-dim); font-size: 0.6rem;">NODE-102 &gt; VIRTUAL REPOSITORY</div>
+                        </div>
+                    </div>
 
-      // Draw Rotating Lat/Long Lines
-      for (let i = -90; i <= 90; i += 30) {
-        let r = radius * Math.cos(i * Math.PI / 180);
-        let y = cy + radius * Math.sin(i * Math.PI / 180);
-        ctx.beginPath();
-        ctx.ellipse(cx, y, r, r * 0.3, 0, 0, Math.PI * 2);
-        ctx.stroke();
-      }
+                    <div style="font-size: 0.65rem; color: var(--accent); margin-top: 4px;">VEGA // ANALYTICS CORE</div>
+                    <div class="vega-ai-box" id="vega-ai-output">
+                        VEGA CORE ONLINE. Monitoring continuous virtual telemetry. All operations strictly simulated inside sandbox node matrix.
+                    </div>
+                    <button class="btn" style="width: 100%; font-size: 0.65rem;" onclick="triggerVegaAI()">RUN ANALYTICS DIAGNOSTIC</button>
 
-      for (let j = 0; j < 360; j += 45) {
-        let rad = (j + angle) * Math.PI / 180;
-        let x = cx + radius * Math.cos(rad);
-        ctx.beginPath();
-        ctx.moveTo(cx, cy - radius);
-        ctx.quadraticCurveTo(x, cy, cx, cy + radius);
-        ctx.stroke();
-      }
+                </div>
+            </div>
 
-      angle += 0.8;
-      requestAnimationFrame(drawGlobe);
-    }
-    drawGlobe();
-  </script>
+        </div>
+
+        <footer>
+            <div class="ticker-wrap" id="ticker">
+                <span>SIMULATION TIME: REALTIME</span>
+                <span>•</span>
+                <span>GLOBAL VIRTUAL NODES: 16,384</span>
+                <span>•</span>
+                <span>SYNTHETIC PACKETS: 4,920,110/s</span>
+                <span>•</span>
+                <span>ENCRYPTION VISUALIZER: 4096-BIT VIRTUAL</span>
+                <span>•</span>
+                <span>SECURITY MODE: CINEMATIC HOLLYWOOD PROP</span>
+                <span>•</span>
+                <span>SYSTEM STATUS: ALL GREEN</span>
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+        /* ==========================================================================
+           1. BOOT SEQUENCE & UTILS
+           ========================================================================== */
+        window.addEventListener('load', () => {
+            const bootBar = document.getElementById('boot-bar');
+            const bootScreen = document.getElementById('boot-screen');
+            const bootText = document.getElementById('boot-text');
+            
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.floor(Math.random() * 15) + 5;
+                if (progress > 100) progress = 100;
+                bootBar.style.width = progress + '%';
+
+                if (progress > 30 && progress < 70) {
+                    bootText.innerText = "CALIBRATING HOLOGRAPHIC GLOBE & ORBITAL RINGS...";
+                } else if (progress >= 70) {
+                    bootText.innerText = "SYNCHRONIZING VEGA ANALYTICS CORE...";
+                }
+
+                if (progress === 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        bootScreen.style.opacity = '0';
+                        setTimeout(() => bootScreen.style.display = 'none', 800);
+                    }, 300);
+                }
+            }, 60);
+
+            initGlobe();
+            startClock();
+            startContinuousTerminal();
+            startMetricsSimulation();
+        });
+
+        function startClock() {
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('clock').innerText = now.toUTCString().split(' ')[4] + ' UTC';
+            }, 1000);
+        }
+
+        /* ==========================================================================
+           2. 3D HTML5 CANVAS WIREFRAME GLOBE & SATELLITES
+           ========================================================================== */
+        let canvas, ctx;
+        let points = [];
+        let satellites = [];
+        let globeRotationY = 0;
+
+        function initGlobe() {
+            canvas = document.getElementById('globeCanvas');
+            ctx = canvas.getContext('2d');
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            // Generate Globe Points (Latitude / Longitude Wireframe Sphere)
+            const radius = 180;
+            const numLat = 16;
+            const numLon = 24;
+
+            for (let i = 0; i <= numLat; i++) {
+                let lat = (Math.PI / numLat) * i - Math.PI / 2;
+                for (let j = 0; j < numLon; j++) {
+                    let lon = (Math.PI * 2 / numLon) * j;
+                    let x = radius * Math.cos(lat) * Math.cos(lon);
+                    let y = radius * Math.sin(lat);
+                    let z = radius * Math.cos(lat) * Math.sin(lon);
+                    points.push({ x, y, z });
+                }
+            }
+
+            // Generate Synthetic Satellites
+            for (let i = 0; i < 8; i++) {
+                satellites.push({
+                    angle: Math.random() * Math.PI * 2,
+                    speed: 0.005 + Math.random() * 0.01,
+                    distance: 220 + Math.random() * 40,
+                    tilt: (Math.random() - 0.5) * 0.8
+                });
+            }
+
+            requestAnimationFrame(animateGlobe);
+        }
+
+        function resizeCanvas() {
+            if (!canvas) return;
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+        }
+
+        function animateGlobe() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+            globeRotationY += 0.004;
+
+            // Render Outer Holographic Rings
+            ctx.strokeStyle = getCSSVar('--accent-glow');
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.ellipse(cx, cy, 260, 70, 0.2, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Render Sphere Points
+            ctx.fillStyle = getCSSVar('--accent');
+            points.forEach(pt => {
+                // Rotate around Y axis
+                let cosY = Math.cos(globeRotationY);
+                let sinY = Math.sin(globeRotationY);
+                let x = pt.x * cosY - pt.z * sinY;
+                let z = pt.x * sinY + pt.z * cosY;
+                let y = pt.y;
+
+                // Simple 3D perspective projection
+                let scale = 300 / (300 + z);
+                let px = cx + x * scale;
+                let py = cy + y * scale;
+
+                if (z < 0) { // Front hemisphere dimmer opacity
+                    ctx.globalAlpha = (scale - 0.5) * 0.9;
+                    ctx.fillRect(px, py, 2 * scale, 2 * scale);
+                } else {
+                    ctx.globalAlpha = 0.15;
+                    ctx.fillRect(px, py, 1.5, 1.5);
+                }
+            });
+
+            // Render Synthetic Satellites
+            satellites.forEach((sat, idx) => {
+                sat.angle += sat.speed;
+                let sx = Math.cos(sat.angle) * sat.distance;
+                let sz = Math.sin(sat.angle) * sat.distance;
+                let sy = sz * sat.tilt;
+
+                let cosY = Math.cos(globeRotationY * 0.5);
+                let sinY = Math.sin(globeRotationY * 0.5);
+                let rx = sx * cosY - sz * sinY;
+                let rz = sx * sinY + sz * cosY;
+
+                let scale = 300 / (300 + rz);
+                let px = cx + rx * scale;
+                let py = cy + sy * scale;
+
+                ctx.globalAlpha = 0.9;
+                ctx.fillStyle = idx % 2 === 0 ? getCSSVar('--accent') : getCSSVar('--warning');
+                ctx.beginPath();
+                ctx.arc(px, py, 3 * scale, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Connect Satellite to center with synthetic laser arc
+                if (idx === 0) {
+                    ctx.strokeStyle = getCSSVar('--accent');
+                    ctx.lineWidth = 0.8;
+                    ctx.beginPath();
+                    ctx.moveTo(cx, cy);
+                    ctx.lineTo(px, py);
+                    ctx.stroke();
+                }
+            });
+
+            requestAnimationFrame(animateGlobe);
+        }
+
+        function randomizeGlobe() {
+            globeRotationY += 1.5;
+            logTerminal("GLOBE ORBIT ROTATION VECTOR ADJUSTED", "sys");
+        }
+
+        /* ==========================================================================
+           3. TERMINAL & CONTINUOUS SIMULATION LOGGING
+           ========================================================================== */
+        const terminal = document.getElementById('terminal');
+
+        function logTerminal(msg, type = 'norm') {
+            const line = document.createElement('div');
+            line.className = `terminal-log ${type}`;
+            const time = new Date().toISOString().split('T')[1].slice(0, 8);
+            line.innerText = `[${time}] > ${msg}`;
+            terminal.appendChild(line);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function clearTerminal() {
+            terminal.innerHTML = '<div class="terminal-log sys">&gt; TERMINAL CLEARED.</div>';
+        }
+
+        function startContinuousTerminal() {
+            const fakeLogs = [
+                "Synchronizing orbital node buffers...",
+                "Synthetic telemetry handshake confirmed.",
+                "Simulated packet flow rate optimal.",
+                "Encrypting visual sandbox workspace...",
+                "Node ALPHA-01 sent synthetic packet batch.",
+                "VEGA Analytics Core polling simulated CPU threads...",
+                "Generating fictional diagnostic pulse..."
+            ];
+
+            setInterval(() => {
+                const randomMsg = fakeLogs[Math.floor(Math.random() * fakeLogs.length)];
+                logTerminal(randomMsg);
+            }, 3500);
+        }
+
+        /* ==========================================================================
+           4. CODE FORGE & 500-LINE CHECKPOINT SYSTEM
+           ========================================================================== */
+        let totalLinesGenerated = 0;
+        let totalTokensGenerated = 0;
+        let totalCheckpoints = 0;
+        let nextCheckpointAt = 500;
+
+        const codeSnippets = {
+            python: [
+                "def simulate_node_handshake(node_id: str) -> dict:\n    packet = {'virtual_id': node_id, 'status': 'SYNTHETIC_OK'}\n    return render_hologram_payload(packet)\n",
+                "class VirtualClusterManager:\n    def __init__(self, capacity=1024):\n        self.capacity = capacity\n        self.nodes = [create_synthetic_node() for _ in range(16)]\n",
+                "async def stream_telemetry_data():\n    while True:\n        await asyncio.sleep(0.1)\n        yield generate_virtual_packet()\n"
+            ],
+            javascript: [
+                "function renderHolographicGrid(targetNode) {\n    const buffer = new ArrayBuffer(1024);\n    return updateSimulationGrid(buffer, targetNode.coords);\n}\n",
+                "const executeVirtualHandshake = async (nodeId) => {\n    const payload = await generateVirtualPacket(nodeId);\n    return payload.status === 200;\n};\n"
+            ],
+            cpp: [
+                "template<typename T>\nclass QuantumBufferSimulator {\npublic:\n    void pushVirtualData(T packet) {\n        std::lock_guard<std::mutex> lock(mtx);\n        simQueue.push(packet);\n    }\n};\n"
+            ]
+        };
+
+        function generateCodeBatch() {
+            const lang = document.getElementById('code-lang').value;
+            const editor = document.getElementById('code-editor');
+            const snippets = codeSnippets[lang] || codeSnippets['python'];
+
+            let addedCode = "";
+            let addedLines = 0;
+
+            for (let i = 0; i < 25; i++) {
+                const snippet = snippets[Math.floor(Math.random() * snippets.length)];
+                addedCode += snippet + "\n";
+                addedLines += snippet.split('\n').length;
+            }
+
+            editor.innerText += "\n" + addedCode;
+            editor.scrollTop = editor.scrollHeight;
+
+            totalLinesGenerated += addedLines;
+            totalTokensGenerated += addedLines * 8;
+
+            document.getElementById('stat-lines').innerText = String(totalLinesGenerated).padStart(6, '0');
+            document.getElementById('stat-tokens').innerText = String(totalTokensGenerated).padStart(6, '0');
+
+            logTerminal(`CODE FORGE: Generated +${addedLines} lines (${lang.toUpperCase()})`, 'sys');
+
+            // CHECKPOINT TRIGGER LOGIC (EVERY 500 LINES)
+            if (totalLinesGenerated >= nextCheckpointAt) {
+                triggerCheckpointNotification(nextCheckpointAt);
+                nextCheckpointAt += 500;
+            }
+        }
+
+        function triggerCheckpointNotification(checkpointLines) {
+            totalCheckpoints++;
+            document.getElementById('stat-checkpoints').innerText = totalCheckpoints;
+
+            const banner = document.getElementById('checkpoint-banner');
+            const title = document.getElementById('checkpoint-title');
+            const time = document.getElementById('checkpoint-time');
+
+            title.innerText = `// ===== ${checkpointLines} LINES COMPLETE =====`;
+            time.innerText = `TIMESTAMP: ${new Date().toLocaleTimeString()}`;
+
+            banner.classList.add('active');
+
+            logTerminal(`// ===== CHECKPOINT CREATED: ${checkpointLines} LINES =====`, 'warn');
+
+            setTimeout(() => {
+                banner.classList.remove('active');
+            }, 3000);
+        }
+
+        function clearCodeForge() {
+            document.getElementById('code-editor').innerText = "// HARmless SYNTHETIC CODE GENERATOR CLEARED.";
+            logTerminal("CODE FORGE CLEARED", "warn");
+        }
+
+        /* ==========================================================================
+           5. METRICS & THREAT SIMULATOR
+           ========================================================================== */
+        function startMetricsSimulation() {
+            setInterval(() => {
+                const cpu = Math.floor(Math.random() * 40) + 30;
+                const ram = Math.floor(Math.random() * 20) + 60;
+
+                document.getElementById('bar-cpu').style.width = cpu + '%';
+                document.getElementById('val-cpu').innerText = cpu + '%';
+
+                document.getElementById('bar-ram').style.width = ram + '%';
+                document.getElementById('val-ram').innerText = ram + '%';
+            }, 2000);
+        }
+
+        function generateSimEvent() {
+            const threats = [
+                { title: "[CRITICAL SIM] VIRTUAL OVERLOAD", detail: "NODE-88 > SYNTHETIC BUFFER HIGH", color: "var(--danger)" },
+                { title: "[MEDIUM ALERT] LATENCY SPIKE", detail: "ORBITAL RING-02 > DELAY +12ms", color: "var(--warning)" },
+                { title: "[LOW PRIORITY] ROUTE UPDATED", detail: "SYNTHETIC GRID > AUTO OPTIMIZED", color: "var(--accent)" }
+            ];
+
+            const item = threats[Math.floor(Math.random() * threats.length)];
+            const container = document.getElementById('threat-container');
+
+            const div = document.createElement('div');
+            div.className = 'threat-item';
+            div.style.borderLeftColor = item.color;
+            div.innerHTML = `
+                <div style="font-weight: bold; color: ${item.color}">${item.title}</div>
+                <div style="color: var(--text-dim); font-size: 0.6rem;">${item.detail}</div>
+            `;
+
+            container.prepend(div);
+            if (container.children.length > 4) container.removeChild(container.lastChild);
+
+            logTerminal(`SIMULATION EVENT GENERATED: ${item.title}`, 'warn');
+        }
+
+        /* ==========================================================================
+           6. VEGA ANALYTICS CORE (AI SIMULATION)
+           ========================================================================== */
+        function triggerVegaAI() {
+            const output = document.getElementById('vega-ai-output');
+            output.innerText = "> VEGA ANALYZING VIRTUAL TELEMETRY...";
+
+            const responses = [
+                "ANALYSIS COMPLETE: Simulated cluster stability is at 99.8%. No real targets detected. Synthetic packet flow optimized.",
+                "ANALYSIS COMPLETE: Detected minor simulated buffer fluctuation on Node ALPHA-01. Auto-correction algorithm applied locally.",
+                "ANALYSIS COMPLETE: Code Forge complexity vector normal. Checkpoint telemetry logged successfully."
+            ];
+
+            setTimeout(() => {
+                output.innerText = responses[Math.floor(Math.random() * responses.length)];
+                logTerminal("VEGA AI DIAGNOSTIC EXECUTED", "sys");
+            }, 1000);
+        }
+
+        /* ==========================================================================
+           7. COMMAND PALETTE & SHORTCUTS
+           ========================================================================== */
+        const themes = ['cyan', 'red', 'purple', 'ice', 'green'];
+        let currentThemeIdx = 0;
+
+        function toggleTheme() {
+            currentThemeIdx = (currentThemeIdx + 1) % themes.length;
+            const theme = themes[currentThemeIdx];
+            if (theme === 'cyan') document.body.removeAttribute('data-theme');
+            else document.body.setAttribute('data-theme', theme);
+            logTerminal(`COLOR THEME CHANGED TO: ${theme.toUpperCase()}`, 'sys');
+        }
+
+        function openCmdPalette() {
+            document.getElementById('cmd-palette').classList.add('active');
+            document.getElementById('cmd-input').focus();
+        }
+
+        function closeCmdPalette() {
+            document.getElementById('cmd-palette').classList.remove('active');
+        }
+
+        function triggerPaletteCmd(cmd) {
+            closeCmdPalette();
+            if (cmd === 'event') generateSimEvent();
+            if (cmd === 'code') generateCodeBatch();
+            if (cmd === 'ai') triggerVegaAI();
+            if (cmd === 'clear') clearTerminal();
+            if (cmd === 'theme') toggleTheme();
+            if (cmd === 'checkpoint') triggerCheckpointNotification(totalLinesGenerated || 500);
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key.toLowerCase() === 'k') {
+                e.preventDefault();
+                openCmdPalette();
+            }
+            if (e.ctrlKey && e.key.toLowerCase() === 'g') {
+                e.preventDefault();
+                generateSimEvent();
+            }
+            if (e.ctrlKey && e.key.toLowerCase() === 'l') {
+                e.preventDefault();
+                clearTerminal();
+            }
+            if (e.ctrlKey && e.key.toLowerCase() === 'a') {
+                e.preventDefault();
+                triggerVegaAI();
+            }
+            if (e.key === 'Escape') {
+                closeCmdPalette();
+            }
+        });
+
+        function getCSSVar(name) {
+            return getComputedStyle(document.body).getPropertyValue(name).trim();
+        }
+    </script>
 </body>
-</html>
+</html>      
