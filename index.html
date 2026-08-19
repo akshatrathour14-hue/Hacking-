@@ -1,1146 +1,1005 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BLACK VEIL // CYBER COMMAND</title>
-    <style>
-        :root {
-            --accent: #00f3ff;
-            --accent-glow: rgba(0, 243, 255, 0.4);
-            --accent-secondary: #0077ff;
-            --bg-dark: #03070d;
-            --bg-glass: rgba(8, 16, 28, 0.78);
-            --border-glass: rgba(0, 243, 255, 0.25);
-            --text-main: #e0f7fc;
-            --text-dim: #5a7d9a;
-            --danger: #ff0055;
-            --warning: #ffaa00;
-            --success: #00ff88;
-            --font-mono: 'Consolas', 'Courier New', Monaco, monospace;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MISSION: MAKE PAPA SMILE ❤️</title>
 
-        /* Theme Overrides */
-        [data-theme="red"] {
-            --accent: #ff0055;
-            --accent-glow: rgba(255, 0, 85, 0.4);
-            --accent-secondary: #ff5500;
-            --bg-glass: rgba(28, 8, 12, 0.78);
-            --border-glass: rgba(255, 0, 85, 0.3);
-        }
-        [data-theme="purple"] {
-            --accent: #bd00ff;
-            --accent-glow: rgba(189, 0, 255, 0.4);
-            --accent-secondary: #7000ff;
-            --bg-glass: rgba(20, 8, 28, 0.78);
-            --border-glass: rgba(189, 0, 255, 0.3);
-        }
-        [data-theme="ice"] {
-            --accent: #00a2ff;
-            --accent-glow: rgba(0, 162, 255, 0.4);
-            --accent-secondary: #00e1ff;
-            --bg-glass: rgba(8, 20, 30, 0.78);
-            --border-glass: rgba(0, 162, 255, 0.3);
-        }
-        [data-theme="green"] {
-            --accent: #00ff66;
-            --accent-glow: rgba(0, 255, 102, 0.4);
-            --accent-secondary: #00b347;
-            --bg-glass: rgba(8, 28, 15, 0.78);
-            --border-glass: rgba(0, 255, 102, 0.3);
-        }
+  <!-- 
+  ================================================================
+  CONFIGURABLE SETTINGS - CUSTOMIZE YOUR EXPERIENCE HERE
+  ================================================================
+  -->
+  <script>
+    const CONFIG = {
+      papaName: "Papa",
+      sonName: "Your Son",
+      songFile: "birthday-song.mp3",
+      
+      // Memory Vault Messages (Hindi / English blend)
+      memoryCards: [
+        { title: "YOUR SUPPORT ❤️", message: "Aapne hamesha mera haath thama hai, chahe raaste kitne bhi mushkil kyun na hon. Aapki wajah se main bekhauf jee sakta hoon." },
+        { title: "YOUR LESSONS 🫡", message: "Aapki sikhayi baatein aur imaandari hi meri sabse badi taaqat hain. Seekhna, girna, aur fir uthna aap hi se seekha hai." },
+        { title: "YOUR SACRIFICES 🌟", message: "Apni khushiyan hamare liye piche rakhne ke liye... thank you Papa. Main aapke tyag ko kabhi nahi bhoolunga." },
+        { title: "OUR MEMORIES 🦋", message: "Aapke saath bitaaye har chote-bade lamhe mere liye sabse anmol khazana hain. Always lucky to be your child!" }
+      ],
+      
+      // Letter Content
+      letterLines: [
+        "Papa,",
+        "Main shayad har baar words mein express nahi kar pata,",
+        "lekin aap mere liye bahut special ho.",
+        "Aapne mujhe sirf cheezein nahi di,",
+        "balki mujhe seekhna, girkar uthna,",
+        "aur aage badhna sikhaya.",
+        "Thank you for always being there.",
+        "I’m really lucky to have you.",
+        "Happy Birthday, Papa. ❤️"
+      ]
+    };
+  </script>
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            user-select: none;
-        }
+  <style>
+    :root {
+      --bg-dark: #0d051a;
+      --bg-card: #1d0c3a;
+      --purple-glow: #6b26d9;
+      --pink-soft: #ff758c;
+      --pink-glow: #ff7eb3;
+      --gold-bright: #ffd700;
+      --gold-dark: #b8860b;
+      --text-light: #f8f9fa;
+      --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
 
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            font-family: var(--font-mono);
-            height: 100vh;
-            overflow: hidden;
-            position: relative;
-        }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-        /* Scanline Overlay Effect */
-        .scanlines {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            pointer-events: none;
-            z-index: 999;
-            background: linear-gradient(
-                rgba(18, 16, 16, 0) 50%, 
-                rgba(0, 0, 0, 0.25) 50%
-            ), linear-gradient(
-                90deg,
-                rgba(255, 0, 0, 0.03),
-                rgba(0, 255, 0, 0.01),
-                rgba(0, 0, 255, 0.03)
-            );
-            background-size: 100% 3px, 6px 100%;
-            opacity: 0.7;
-        }
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-dark);
+      font-family: var(--font-family);
+      color: var(--text-light);
+      position: relative;
+    }
 
-        /* Boot Screen Overlay */
-        #boot-screen {
-            position: fixed;
-            inset: 0;
-            background: #000;
-            z-index: 10000;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            transition: opacity 0.8s ease;
-        }
+    /* Background Canvas */
+    #bgCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
 
-        .boot-loader {
-            width: 320px;
-            background: rgba(255,255,255,0.1);
-            height: 4px;
-            border-radius: 2px;
-            overflow: hidden;
-            margin-top: 15px;
-        }
+    /* Audio Control Bar */
+    .audio-control {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      z-index: 100;
+      background: rgba(29, 12, 58, 0.75);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 117, 140, 0.3);
+      border-radius: 30px;
+      padding: 6px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
 
-        .boot-bar {
-            width: 0%;
-            height: 100%;
-            background: var(--accent);
-            box-shadow: 0 0 10px var(--accent);
-            transition: width 0.05s linear;
-        }
+    .audio-btn {
+      background: none;
+      border: none;
+      color: var(--gold-bright);
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      outline: none;
+    }
 
-        /* Command Center Layout */
-        .app-container {
-            display: grid;
-            grid-template-rows: 50px 1fr 32px;
-            height: 100vh;
-            padding: 8px;
-            gap: 8px;
-        }
+    .audio-status {
+      font-size: 0.75rem;
+      color: var(--pink-soft);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
 
-        header {
-            background: var(--bg-glass);
-            border: 1px solid var(--border-glass);
-            backdrop-filter: blur(12px);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 16px;
-            box-shadow: 0 0 15px var(--accent-glow);
-            border-radius: 4px;
-        }
+    /* Hidden Easter Egg */
+    .easter-egg-butterfly {
+      position: fixed;
+      bottom: 12px;
+      left: 15px;
+      z-index: 100;
+      font-size: 1.3rem;
+      cursor: pointer;
+      opacity: 0.6;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      animation: gentleFloat 3s ease-in-out infinite;
+    }
+    .easter-egg-butterfly:active {
+      transform: scale(1.3);
+    }
 
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-weight: bold;
-            letter-spacing: 2px;
-            color: var(--accent);
-            text-shadow: 0 0 8px var(--accent);
-        }
+    /* Screen Management */
+    .screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: scale(0.96) translateY(10px);
+      overflow-y: auto;
+    }
 
-        .brand-badge {
-            font-size: 0.65rem;
-            padding: 2px 6px;
-            background: rgba(0, 243, 255, 0.15);
-            border: 1px solid var(--accent);
-            border-radius: 3px;
-        }
+    .screen.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1) translateY(0);
+    }
 
-        .header-controls {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 0.8rem;
-        }
+    /* Common Typography & UI Elements */
+    .badge {
+      display: inline-block;
+      padding: 6px 16px;
+      background: rgba(255, 215, 0, 0.15);
+      border: 1px solid var(--gold-bright);
+      color: var(--gold-bright);
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      margin-bottom: 16px;
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+    }
 
-        .btn {
-            background: rgba(0, 243, 255, 0.08);
-            border: 1px solid var(--border-glass);
-            color: var(--text-main);
-            padding: 6px 12px;
-            font-family: var(--font-mono);
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            border-radius: 3px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #fff 30%, var(--pink-soft) 70%, var(--gold-bright) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.25;
+    }
 
-        .btn:hover {
-            background: var(--accent);
-            color: #000;
-            box-shadow: 0 0 10px var(--accent-glow);
-        }
+    p.subtitle {
+      font-size: 1rem;
+      color: rgba(248, 249, 250, 0.8);
+      margin-bottom: 28px;
+      line-height: 1.5;
+      max-width: 320px;
+    }
 
-        /* Main Grid */
-        .main-stage {
-            display: grid;
-            grid-template-columns: 320px 1fr 340px;
-            gap: 8px;
-            overflow: hidden;
-        }
+    .btn-primary {
+      background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 50%, #6b26d9 100%);
+      color: #fff;
+      border: none;
+      padding: 16px 36px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 8px 25px rgba(255, 117, 140, 0.4), 0 0 15px rgba(107, 38, 217, 0.4);
+      transition: all 0.3s ease;
+      letter-spacing: 0.5px;
+      outline: none;
+      position: relative;
+      overflow: hidden;
+    }
 
-        .panel {
-            background: var(--bg-glass);
-            border: 1px solid var(--border-glass);
-            backdrop-filter: blur(8px);
-            border-radius: 4px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
-            position: relative;
-        }
+    .btn-primary::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(60deg, transparent, rgba(255,255,255,0.25), transparent);
+      transform: rotate(30deg);
+      transition: all 0.6s ease;
+    }
 
-        .panel-header {
-            background: rgba(255, 255, 255, 0.03);
-            border-bottom: 1px solid var(--border-glass);
-            padding: 8px 12px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            letter-spacing: 1.5px;
-            color: var(--accent);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    .btn-primary:active {
+      transform: scale(0.96);
+      box-shadow: 0 4px 15px rgba(255, 117, 140, 0.3);
+    }
 
-        .panel-body {
-            padding: 10px;
-            flex: 1;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
+    /* SCREEN 1 - SECRET MISSION */
+    .lock-icon {
+      font-size: 3.5rem;
+      margin-bottom: 20px;
+      filter: drop-shadow(0 0 15px var(--gold-bright));
+      animation: pulseGlow 2s infinite ease-in-out;
+    }
 
-        /* Left Side: Command Matrix & Code Forge */
-        .matrix-buttons {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 6px;
-        }
+    /* SCREEN 2 - REVEAL */
+    .reveal-text-1 {
+      font-size: 2rem;
+      color: var(--pink-soft);
+      font-weight: 700;
+      opacity: 0;
+      transform: translateY(15px);
+      transition: all 0.6s ease;
+    }
 
-        .matrix-btn {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--text-dim);
-            font-size: 0.65rem;
-            padding: 8px;
-            text-align: left;
-            cursor: pointer;
-            border-radius: 2px;
-            transition: all 0.15s;
-        }
+    .reveal-text-2 {
+      font-size: 1.5rem;
+      color: var(--gold-bright);
+      font-weight: 700;
+      opacity: 0;
+      margin-top: 10px;
+      transform: translateY(15px);
+      transition: all 0.6s ease;
+    }
 
-        .matrix-btn:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-            background: rgba(0, 243, 255, 0.05);
-        }
+    .reveal-text-3 {
+      font-size: 2.3rem;
+      font-weight: 900;
+      margin-top: 15px;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
 
-        .terminal-box {
-            background: #000;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            height: 140px;
-            font-size: 0.68rem;
-            padding: 8px;
-            overflow-y: auto;
-            color: var(--text-dim);
-            line-height: 1.4;
-            border-radius: 3px;
-        }
+    /* SCREEN 3 - MINI GAME */
+    .game-container {
+      width: 100%;
+      height: 320px;
+      background: rgba(29, 12, 58, 0.5);
+      border: 1px solid rgba(255, 117, 140, 0.2);
+      border-radius: 20px;
+      position: relative;
+      margin-bottom: 20px;
+      overflow: hidden;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+    }
 
-        .terminal-log {
-            margin-bottom: 4px;
-        }
-        .terminal-log.sys { color: var(--accent); }
-        .terminal-log.warn { color: var(--warning); }
-        .terminal-log.err { color: var(--danger); }
+    .game-heart {
+      position: absolute;
+      font-size: 2.2rem;
+      cursor: pointer;
+      user-select: none;
+      filter: drop-shadow(0 0 8px var(--pink-soft));
+      transition: transform 0.15s ease;
+      touch-action: manipulation;
+    }
 
-        .code-forge-controls {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
+    .game-heart:active {
+      transform: scale(1.4);
+    }
 
-        select, input[type="range"] {
-            background: #000;
-            border: 1px solid var(--border-glass);
-            color: var(--text-main);
-            padding: 4px;
-            font-family: var(--font-mono);
-            font-size: 0.7rem;
-            border-radius: 2px;
-        }
+    .game-score {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--gold-bright);
+      margin-bottom: 10px;
+    }
 
-        .code-editor {
-            background: rgba(0, 0, 0, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            font-size: 0.65rem;
-            padding: 8px;
-            color: #00ffaa;
-            height: 180px;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            border-radius: 3px;
-            position: relative;
-        }
+    .floating-popup {
+      position: absolute;
+      color: var(--gold-bright);
+      font-weight: 800;
+      font-size: 0.95rem;
+      pointer-events: none;
+      animation: floatUpAndFade 1.2s forwards ease-out;
+      text-shadow: 0 0 10px rgba(0,0,0,0.8);
+      z-index: 20;
+    }
 
-        .code-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 4px;
-            font-size: 0.65rem;
-            background: rgba(0,0,0,0.4);
-            padding: 6px;
-            border-radius: 3px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
+    /* SCREEN 4 - MEMORY VAULT */
+    .vault-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      width: 100%;
+      max-width: 360px;
+      margin-bottom: 20px;
+    }
 
-        /* Center Stage: Globe & Visuals */
-        .globe-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            background: radial-gradient(circle, rgba(0, 243, 255, 0.05) 0%, rgba(3, 7, 13, 0.9) 70%);
-        }
+    .vault-card {
+      height: 120px;
+      perspective: 1000px;
+      cursor: pointer;
+    }
 
-        #globeCanvas {
-            width: 100%;
-            height: 100%;
-        }
+    .vault-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-style: preserve-3d;
+      border-radius: 16px;
+    }
 
-        .globe-hud-overlay {
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 16px;
-        }
+    .vault-card.flipped .vault-card-inner {
+      transform: rotateY(180deg);
+    }
 
-        .hud-top {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.7rem;
-            color: var(--text-dim);
-        }
+    .vault-card-front, .vault-card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+    }
 
-        .hud-target-card {
-            background: var(--bg-glass);
-            border: 1px solid var(--accent);
-            padding: 10px;
-            border-radius: 4px;
-            width: 220px;
-            box-shadow: 0 0 15px var(--accent-glow);
-            pointer-events: auto;
-        }
+    .vault-card-front {
+      background: linear-gradient(145deg, rgba(29, 12, 58, 0.9), rgba(107, 38, 217, 0.4));
+      border: 1px solid rgba(255, 215, 0, 0.4);
+      color: var(--gold-bright);
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
 
-        /* Right Side: Metrics & Threat Simulator & VEGA AI */
-        .metric-card {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255,255,255,0.08);
-            padding: 8px;
-            border-radius: 3px;
-        }
+    .vault-card-back {
+      background: linear-gradient(145deg, rgba(255, 117, 140, 0.95), rgba(107, 38, 217, 0.95));
+      color: #fff;
+      transform: rotateY(180deg);
+      font-size: 0.78rem;
+      line-height: 1.35;
+      font-weight: 500;
+      overflow-y: auto;
+    }
 
-        .metric-title {
-            font-size: 0.65rem;
-            color: var(--text-dim);
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 4px;
-        }
+    /* SCREEN 5 - HEARTFELT LETTER */
+    .letter-paper {
+      background: rgba(29, 12, 58, 0.85);
+      border: 1px solid rgba(255, 117, 140, 0.3);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 0 15px rgba(255, 117, 140, 0.1);
+      border-radius: 20px;
+      padding: 24px 20px;
+      width: 100%;
+      max-width: 350px;
+      text-align: left;
+      margin-bottom: 24px;
+      position: relative;
+    }
 
-        .progress-bar-bg {
-            background: rgba(255, 255, 255, 0.1);
-            height: 6px;
-            border-radius: 3px;
-            overflow: hidden;
-        }
+    .letter-line {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.9);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all 0.5s ease;
+      margin-bottom: 8px;
+    }
 
-        .progress-bar-fill {
-            height: 100%;
-            background: var(--accent);
-            width: 50%;
-            box-shadow: 0 0 8px var(--accent);
-            transition: width 0.4s ease;
-        }
+    .letter-line.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
 
-        .threat-item {
-            background: rgba(255, 0, 85, 0.08);
-            border-left: 3px solid var(--danger);
-            padding: 6px 8px;
-            font-size: 0.65rem;
-            margin-bottom: 6px;
-            border-radius: 0 3px 3px 0;
-        }
+    .letter-sender {
+      text-align: right;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--gold-bright);
+      margin-top: 15px;
+    }
 
-        .vega-ai-box {
-            background: rgba(0, 243, 255, 0.03);
-            border: 1px solid var(--border-glass);
-            padding: 8px;
-            border-radius: 3px;
-            font-size: 0.7rem;
-            line-height: 1.4;
-            min-height: 90px;
-        }
+    /* SCREEN 6 - FINAL CINEMATIC */
+    .dark-intro {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--gold-bright);
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
 
-        /* Checkpoint Overlay Banner */
-        #checkpoint-banner {
-            position: fixed;
-            top: 40%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.8);
-            background: rgba(8, 16, 28, 0.95);
-            border: 2px solid var(--accent);
-            box-shadow: 0 0 40px var(--accent-glow);
-            padding: 24px 40px;
-            border-radius: 6px;
-            text-align: center;
-            z-index: 1000;
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
+    .final-reveal-box {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      animation: zoomIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
 
-        #checkpoint-banner.active {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1);
-        }
+    .progress-bar-container {
+      width: 100%;
+      max-width: 280px;
+      height: 18px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      border: 1px solid var(--gold-bright);
+      overflow: hidden;
+      margin: 15px 0;
+      position: relative;
+    }
 
-        .pulse-ring {
-            width: 60px;
-            height: 60px;
-            border: 2px solid var(--accent);
-            border-radius: 50%;
-            margin: 0 auto 12px;
-            animation: pulseRing 1.2s infinite;
-        }
+    .progress-bar-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--pink-soft), var(--gold-bright));
+      transition: width 1.5s ease;
+      box-shadow: 0 0 10px var(--gold-bright);
+    }
 
-        @keyframes pulseRing {
-            0% { transform: scale(0.8); opacity: 1; }
-            100% { transform: scale(1.5); opacity: 0; }
-        }
+    /* Easter Egg Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.85);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
 
-        /* Bottom Ticker Bar */
-        footer {
-            background: var(--bg-glass);
-            border: 1px solid var(--border-glass);
-            backdrop-filter: blur(8px);
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            padding: 0 12px;
-            font-size: 0.68rem;
-            overflow: hidden;
-            white-space: nowrap;
-        }
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
 
-        .ticker-wrap {
-            display: flex;
-            gap: 24px;
-            animation: ticker 30s linear infinite;
-        }
+    .modal-card {
+      background: linear-gradient(135deg, #1d0c3a, #381566);
+      border: 2px solid var(--gold-bright);
+      border-radius: 20px;
+      padding: 25px;
+      text-align: center;
+      box-shadow: 0 0 30px rgba(255,215,0,0.4);
+      max-width: 320px;
+    }
 
-        @keyframes ticker {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
+    /* Keyframe Animations */
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px var(--gold-bright)); }
+      50% { transform: scale(1.1); filter: drop-shadow(0 0 25px var(--gold-bright)); }
+    }
 
-        /* Command Palette Modal */
-        #cmd-palette {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(10px);
-            z-index: 20000;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            padding-top: 15vh;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s;
-        }
+    @keyframes floatUpAndFade {
+      0% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-40px) scale(1.2); }
+    }
 
-        #cmd-palette.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
+    @keyframes gentleFloat {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-8px) rotate(5deg); }
+    }
 
-        .cmd-modal {
-            background: var(--bg-dark);
-            border: 1px solid var(--accent);
-            width: 500px;
-            border-radius: 6px;
-            box-shadow: 0 0 30px var(--accent-glow);
-            overflow: hidden;
-        }
-
-        .cmd-input {
-            width: 100%;
-            padding: 14px;
-            background: transparent;
-            border: none;
-            border-bottom: 1px solid var(--border-glass);
-            color: var(--accent);
-            font-family: var(--font-mono);
-            font-size: 1rem;
-            outline: none;
-        }
-
-        .cmd-list {
-            max-height: 250px;
-            overflow-y: auto;
-        }
-
-        .cmd-item {
-            padding: 10px 14px;
-            font-size: 0.75rem;
-            cursor: pointer;
-            border-bottom: 1px solid rgba(255,255,255,0.03);
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .cmd-item:hover {
-            background: var(--accent);
-            color: #000;
-        }
-
-        /* Disclaimer badge */
-        .disclaimer-tag {
-            font-size: 0.6rem;
-            color: var(--text-dim);
-            letter-spacing: 1px;
-            opacity: 0.8;
-        }
-
-        @media (max-width: 1024px) {
-            .main-stage {
-                grid-template-columns: 280px 1fr;
-            }
-            .panel.right-panel { display: none; }
-        }
-    </style>
+    @keyframes zoomIn {
+      0% { opacity: 0; transform: scale(0.5); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+  </style>
 </head>
 <body>
 
-    <div class="scanlines"></div>
+  <!-- Canvas for particles, stars, confetti -->
+  <canvas id="bgCanvas"></canvas>
 
-    <div id="boot-screen">
-        <div style="font-size: 1.2rem; color: var(--accent); letter-spacing: 4px; font-weight: bold;">INITIALIZING BLACK VEIL...</div>
-        <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: 8px;" id="boot-text">LOADING SIMULATION KERNEL v4.9.0</div>
-        <div class="boot-loader">
-            <div class="boot-bar" id="boot-bar"></div>
-        </div>
+  <!-- Audio Controls -->
+  <div class="audio-control">
+    <button class="audio-btn" id="musicToggleBtn" aria-label="Toggle Music">🎵</button>
+    <span class="audio-status" id="musicStatusText">PLAY SONG</span>
+  </div>
+  <audio id="bgMusic" loop preload="auto"></audio>
+
+  <!-- Hidden Easter Egg Trigger -->
+  <div class="easter-egg-butterfly" id="easterEggBtn">🦋</div>
+
+  <!-- SCREEN 1: SECRET MISSION -->
+  <div class="screen active" id="screen1">
+    <div class="lock-icon">🔒</div>
+    <div class="badge">TOP SECRET</div>
+    <h1 id="screen1Title">MISSION: MAKE PAPA SMILE</h1>
+    <p class="subtitle">A special mission has been prepared for the most special person in the world.</p>
+    <button class="btn-primary" id="startMissionBtn">START MISSION 🚀</button>
+  </div>
+
+  <!-- SCREEN 2: THE BIG REVEAL -->
+  <div class="screen" id="screen2">
+    <div class="reveal-text-1" id="reveal1">WAIT… 👀</div>
+    <div class="reveal-text-2" id="reveal2">IT'S YOUR DAY, PAPA! ❤️</div>
+    <div class="reveal-text-3" id="reveal3">HAPPY BIRTHDAY PAPA 🎂🎈</div>
+    <div style="height: 30px;"></div>
+    <button class="btn-primary" id="continueToGameBtn" style="opacity: 0; pointer-events: none; transition: opacity 0.5s ease;">CONTINUE →</button>
+  </div>
+
+  <!-- SCREEN 3: MINI GAME -->
+  <div class="screen" id="screen3">
+    <div class="badge">CHALLENGE ACCEPTED</div>
+    <h1 style="font-size: 1.6rem;">PAPA, ONE SMALL CHALLENGE 😎</h1>
+    <p class="subtitle" style="margin-bottom: 12px;">Catch 5 hearts to unlock your birthday surprise ❤️</p>
+    
+    <div class="game-score" id="gameScoreText">HEARTS: 0/5</div>
+    
+    <div class="game-container" id="gameArea"></div>
+
+    <button class="btn-primary" id="unlockSurpriseBtn" style="display: none;">UNLOCK SURPRISE 🔓</button>
+  </div>
+
+  <!-- SCREEN 4: MEMORY VAULT -->
+  <div class="screen" id="screen4">
+    <div class="badge">🔐 MEMORY VAULT</div>
+    <p class="subtitle" style="margin-bottom: 18px;">Some things deserve to be remembered forever.</p>
+
+    <div class="vault-grid" id="vaultGrid"></div>
+
+    <div id="vaultCompleteStatus" style="height: 25px; font-weight: 700; color: var(--gold-bright); font-size: 0.9rem; margin-bottom: 10px;"></div>
+    
+    <button class="btn-primary" id="oneLastSurpriseBtn" style="opacity: 0.4; pointer-events: none;">ONE LAST SURPRISE 🎁</button>
+  </div>
+
+  <!-- SCREEN 5: HEARTFELT MESSAGE -->
+  <div class="screen" id="screen5">
+    <div class="badge">FROM THE HEART ❤️</div>
+    <div class="letter-paper" id="letterPaper">
+      <div id="letterContainer"></div>
+      <div class="letter-sender" id="letterSender"></div>
     </div>
+    <button class="btn-primary" id="waitMoreBtn">WAIT… THERE'S MORE 👀</button>
+  </div>
 
-    <div id="checkpoint-banner">
-        <div class="pulse-ring"></div>
-        <div id="checkpoint-title" style="color: var(--accent); font-size: 1.1rem; font-weight: bold; letter-spacing: 2px;">
-            // ===== 500 LINES COMPLETE =====
-        </div>
-        <div style="color: var(--text-main); font-size: 0.75rem; margin-top: 6px;">SYNTHETIC CODE CHECKPOINT CREATED</div>
-        <div id="checkpoint-time" style="color: var(--text-dim); font-size: 0.65rem; margin-top: 4px;">TIMESTAMP: --:--:--</div>
+  <!-- SCREEN 6: FINAL CINEMATIC SURPRISE -->
+  <div class="screen" id="screen6">
+    <div class="dark-intro" id="finalText1">ONE LAST THING…</div>
+    <div class="dark-intro" id="finalText2" style="margin-top: 15px;">READY? 👀</div>
+    
+    <button class="btn-primary" id="finalRevealBtn" style="margin-top: 25px;">REVEAL ❤️</button>
+
+    <div class="final-reveal-box" id="finalRevealContent">
+      <h1 style="font-size: 2.2rem;">🎂 HAPPY BIRTHDAY PAPA 🎂</h1>
+      <p style="font-size: 1.3rem; font-weight: 800; color: var(--gold-bright); margin: 10px 0;">YOU ARE A LEGEND. ❤️</p>
+      
+      <div class="badge" style="margin-top: 10px;">MISSION COMPLETE ✅</div>
+      
+      <div class="progress-bar-container">
+        <div class="progress-bar-fill" id="progressFill"></div>
+      </div>
+      <div style="font-size: 0.95rem; font-weight: 700; color: var(--pink-soft);">PAPA SMILE LEVEL: 100% 😎</div>
     </div>
+  </div>
 
-    <div id="cmd-palette">
-        <div class="cmd-modal">
-            <input type="text" class="cmd-input" id="cmd-input" placeholder="Type a command or search... (ESC to exit)" />
-            <div class="cmd-list" id="cmd-list">
-                <div class="cmd-item" onclick="triggerPaletteCmd('event')"><span>&gt; GENERATE EVENT</span><span>CTRL+G</span></div>
-                <div class="cmd-item" onclick="triggerPaletteCmd('code')"><span>&gt; GENERATE SYNTHETIC CODE</span><span>FORGE</span></div>
-                <div class="cmd-item" onclick="triggerPaletteCmd('ai')"><span>&gt; RUN VEGA AI ANALYSIS</span><span>CTRL+A</span></div>
-                <div class="cmd-item" onclick="triggerPaletteCmd('clear')"><span>&gt; CLEAR LOG TERMINAL</span><span>CTRL+L</span></div>
-                <div class="cmd-item" onclick="triggerPaletteCmd('theme')"><span>&gt; TOGGLE COLOR THEME</span><span>MODE</span></div>
-                <div class="cmd-item" onclick="triggerPaletteCmd('checkpoint')"><span>&gt; CREATE CHECKPOINT</span><span>SAVE</span></div>
-            </div>
-        </div>
+  <!-- EASTER EGG MODAL -->
+  <div class="modal-overlay" id="easterEggModal">
+    <div class="modal-card">
+      <div style="font-size: 2.5rem; margin-bottom: 10px;">🦋✨</div>
+      <div class="badge">SECRET UNLOCKED 💜</div>
+      <p style="font-size: 1.05rem; line-height: 1.5; color: #fff; margin: 15px 0;">
+        "Papa, this whole little world was made just for you."
+      </p>
+      <button class="btn-primary" id="closeModalBtn" style="padding: 10px 24px; font-size: 0.9rem;">CLOSE ❤️</button>
     </div>
+  </div>
 
-    <div class="app-container">
-        
-        <header>
-            <div class="brand">
-                <span>BLACK VEIL</span>
-                <span style="color: var(--text-dim);">//</span>
-                <span>CYBER COMMAND</span>
-                <span class="brand-badge">SIMULATION CORE</span>
-            </div>
+  <!-- JAVASCRIPT ENGINE -->
+  <script>
+    // System State
+    let currentScreen = 1;
+    let musicPlaying = false;
+    let caughtHearts = 0;
+    let unlockedCardsCount = 0;
+    let easterEggClicks = 0;
+
+    // References
+    const bgMusic = document.getElementById('bgMusic');
+    const musicToggleBtn = document.getElementById('musicToggleBtn');
+    const musicStatusText = document.getElementById('musicStatusText');
+    const bgCanvas = document.getElementById('bgCanvas');
+    const ctx = bgCanvas.getContext('2d');
+
+    // Dynamic Title Setup
+    document.getElementById('screen1Title').innerText = `MISSION: MAKE ${CONFIG.papaName.toUpperCase()} SMILE`;
+    bgMusic.src = CONFIG.songFile;
+
+    // Screen Transition Handler
+    function showScreen(screenNum) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      const target = document.getElementById(`screen${screenNum}`);
+      if (target) {
+        target.classList.add('active');
+        currentScreen = screenNum;
+      }
+    }
+
+    // Audio Control
+    function toggleAudio() {
+      if (musicPlaying) {
+        bgMusic.pause();
+        musicPlaying = false;
+        musicStatusText.innerText = "PLAY SONG";
+        musicToggleBtn.innerText = "🎵";
+      } else {
+        bgMusic.play().then(() => {
+          musicPlaying = true;
+          musicStatusText.innerText = "PLAYING";
+          musicToggleBtn.innerText = "🎶";
+        }).catch(() => {
+          musicStatusText.innerText = "TAP AGAIN";
+        });
+      }
+    }
+    musicToggleBtn.addEventListener('click', toggleAudio);
+
+    // Easter Egg System
+    const easterEggBtn = document.getElementById('easterEggBtn');
+    const easterEggModal = document.getElementById('easterEggModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
+    easterEggBtn.addEventListener('click', () => {
+      easterEggClicks++;
+      spawnBurstParticles(window.innerWidth / 2, window.innerHeight / 2, 15, ['#ff7eb3', '#ffd700']);
+      if (easterEggClicks >= 3) {
+        easterEggModal.classList.add('active');
+        easterEggClicks = 0;
+      }
+    });
+
+    closeModalBtn.addEventListener('click', () => {
+      easterEggModal.classList.remove('active');
+    });
+
+    // SCREEN 1 -> SCREEN 2
+    document.getElementById('startMissionBtn').addEventListener('click', () => {
+      if (!musicPlaying) toggleAudio();
+      spawnConfettiBurst(40);
+      showScreen(2);
+
+      // Sequenced Animations for Screen 2
+      setTimeout(() => {
+        document.getElementById('reveal1').style.opacity = '1';
+        document.getElementById('reveal1').style.transform = 'translateY(0)';
+      }, 500);
+
+      setTimeout(() => {
+        document.getElementById('reveal2').style.opacity = '1';
+        document.getElementById('reveal2').style.transform = 'translateY(0)';
+      }, 1500);
+
+      setTimeout(() => {
+        const r3 = document.getElementById('reveal3');
+        r3.innerText = `HAPPY BIRTHDAY ${CONFIG.papaName.toUpperCase()} 🎂🎈`;
+        r3.style.opacity = '1';
+        r3.style.transform = 'scale(1)';
+        spawnConfettiBurst(60);
+      }, 2700);
+
+      setTimeout(() => {
+        const btn = document.getElementById('continueToGameBtn');
+        btn.style.opacity = '1';
+        btn.style.pointerEvents = 'auto';
+      }, 3800);
+    });
+
+    // SCREEN 2 -> SCREEN 3 (Game Setup)
+    document.getElementById('continueToGameBtn').addEventListener('click', () => {
+      showScreen(3);
+      initMiniGame();
+    });
+
+    // MINI GAME LOGIC
+    const messages = ["My Hero 🫡", "Thank You ❤️", "Best Papa", "Always There For Me", "Love You Papa ❤️"];
+    function initMiniGame() {
+      caughtHearts = 0;
+      document.getElementById('gameScoreText').innerText = `HEARTS: 0/5`;
+      const gameArea = document.getElementById('gameArea');
+      gameArea.innerHTML = '';
+      
+      for (let i = 0; i < 5; i++) {
+        spawnGameHeart(i);
+      }
+    }
+
+    function spawnGameHeart(index) {
+      const gameArea = document.getElementById('gameArea');
+      const heart = document.createElement('div');
+      heart.className = 'game-heart';
+      heart.innerText = '❤️';
+      
+      const setPos = () => {
+        const maxX = gameArea.clientWidth - 45;
+        const maxY = gameArea.clientHeight - 45;
+        heart.style.left = `${Math.max(10, Math.floor(Math.random() * maxX))}px`;
+        heart.style.top = `${Math.max(10, Math.floor(Math.random() * maxY))}px`;
+      };
+      setPos();
+
+      heart.addEventListener('click', (e) => {
+        e.stopPropagation();
+        heart.remove();
+        caughtHearts++;
+        document.getElementById('gameScoreText').innerText = `HEARTS: ${caughtHearts}/5`;
+
+        // Show floating message popup
+        const rect = gameArea.getBoundingClientRect();
+        const popup = document.createElement('div');
+        popup.className = 'floating-popup';
+        popup.innerText = messages[index % messages.length];
+        popup.style.left = `${e.clientX - rect.left - 30}px`;
+        popup.style.top = `${e.clientY - rect.top - 20}px`;
+        gameArea.appendChild(popup);
+
+        setTimeout(() => popup.remove(), 1200);
+        spawnBurstParticles(e.clientX, e.clientY, 12, ['#ff758c', '#ffd700']);
+
+        if (caughtHearts === 5) {
+          document.getElementById('gameScoreText').innerText = `MISSION LEVEL 1 COMPLETE 🏆`;
+          document.getElementById('unlockSurpriseBtn').style.display = 'inline-block';
+          spawnConfettiBurst(50);
+        }
+      });
+
+      gameArea.appendChild(heart);
+    }
+
+    // SCREEN 3 -> SCREEN 4 (Vault Setup)
+    document.getElementById('unlockSurpriseBtn').addEventListener('click', () => {
+      showScreen(4);
+      initVault();
+    });
+
+    // MEMORY VAULT LOGIC
+    function initVault() {
+      const grid = document.getElementById('vaultGrid');
+      grid.innerHTML = '';
+      unlockedCardsCount = 0;
+
+      CONFIG.memoryCards.forEach((item) => {
+        const card = document.createElement('div');
+        card.className = 'vault-card';
+        card.innerHTML = `
+          <div class="vault-card-inner">
+            <div class="vault-card-front">${item.title}</div>
+            <div class="vault-card-back">${item.message}</div>
+          </div>
+        `;
+
+        card.addEventListener('click', () => {
+          if (!card.classList.contains('flipped')) {
+            card.classList.add('flipped');
+            unlockedCardsCount++;
             
-            <div class="disclaimer-tag">FICTIONAL CYBER SIMULATION // NO REAL TARGETS</div>
+            const rect = card.getBoundingClientRect();
+            spawnBurstParticles(rect.left + rect.width/2, rect.top + rect.height/2, 10, ['#ffd700', '#ff7eb3']);
 
-            <div class="header-controls">
-                <button class="btn" onclick="toggleTheme()">THEME</button>
-                <button class="btn" onclick="openCmdPalette()">CMD (CTRL+K)</button>
-                <div id="clock" style="color: var(--accent); font-weight: bold;">00:00:00 UTC</div>
-            </div>
-        </header>
-
-        <div class="main-stage">
-            
-            <div class="panel">
-                <div class="panel-header">
-                    <span>COMMAND MATRIX</span>
-                    <span style="font-size: 0.6rem; color: var(--success);">● ACTIVE</span>
-                </div>
-                <div class="panel-body">
-                    <div class="matrix-buttons">
-                        <button class="matrix-btn" onclick="logTerminal('SYSTEM REBOOT INITIATED', 'warn')">[ SYSTEM BOOT ]</button>
-                        <button class="matrix-btn" onclick="generateSimEvent()">[ GENERATE EVENT ]</button>
-                        <button class="matrix-btn" onclick="generateCodeBatch()">[ CODE FORGE ]</button>
-                        <button class="matrix-btn" onclick="triggerVegaAI()">[ AI ANALYZER ]</button>
-                        <button class="matrix-btn" onclick="randomizeGlobe()">[ ROTATE GLOBE ]</button>
-                        <button class="matrix-btn" onclick="clearTerminal()">[ CLEAR LOGS ]</button>
-                    </div>
-
-                    <div style="font-size: 0.65rem; color: var(--accent); margin-top: 4px;">TERMINAL OUTPUT</div>
-                    <div class="terminal-box" id="terminal">
-                        <div class="terminal-log sys">&gt; INITIALIZING BLACK VEIL SIMULATION CORE...</div>
-                        <div class="terminal-log sys">&gt; VIRTUAL ENVIRONMENT READY.</div>
-                        <div class="terminal-log">&gt; SYNTHETIC NODES ONLINE: 1,024</div>
-                    </div>
-
-                    <div style="font-size: 0.65rem; color: var(--accent); margin-top: 4px;">CODE FORGE (SYNTHETIC)</div>
-                    <div class="code-forge-controls">
-                        <select id="code-lang">
-                            <option value="python">Python</option>
-                            <option value="javascript">JavaScript</option>
-                            <option value="cpp">C++</option>
-                            <option value="rust">Rust</option>
-                            <option value="sql">SQL</option>
-                        </select>
-                        <button class="btn" style="padding: 3px 8px; font-size:0.65rem;" onclick="generateCodeBatch()">+100 LINES</button>
-                        <button class="btn" style="padding: 3px 8px; font-size:0.65rem;" onclick="clearCodeForge()">CLEAR</button>
-                    </div>
-
-                    <div class="code-editor" id="code-editor">// HARmless SYNTHETIC CODE GENERATOR READY.
-// CLICK '+100 LINES' TO SIMULATE CODE GENERATION.</div>
-
-                    <div class="code-stats">
-                        <div>LINES: <span id="stat-lines" style="color:var(--accent);">000000</span></div>
-                        <div>TOKENS: <span id="stat-tokens" style="color:var(--accent);">000000</span></div>
-                        <div>CHECKPOINTS: <span id="stat-checkpoints" style="color:var(--accent);">0</span></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="panel" style="background: transparent; border: none;">
-                <div class="globe-container">
-                    <canvas id="globeCanvas"></canvas>
-                    
-                    <div class="globe-hud-overlay">
-                        <div class="hud-top">
-                            <div>SIMULATION TARGET: <span style="color:var(--accent);">SYNTHETIC-GRID-99</span></div>
-                            <div>ORBITAL SATELLITES: <span style="color:var(--accent);">12 ACTIVE</span></div>
-                        </div>
-
-                        <div style="display:flex; justify-shadow:space-between; align-items:flex-end;">
-                            <div class="hud-target-card">
-                                <div style="font-size: 0.65rem; color: var(--accent); font-weight: bold;">NODE TELEMETRY</div>
-                                <div style="font-size: 0.75rem; font-weight: bold; margin-top: 4px;" id="node-name">ALPHA-SECTOR-01</div>
-                                <div style="font-size: 0.65rem; color: var(--text-dim); margin-top: 2px;" id="node-coords">LAT: 35.6895 | LON: 139.6917</div>
-                                <div style="font-size: 0.65rem; color: var(--success); margin-top: 4px;">STATUS: ENCRYPTED // SYNTHETIC</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="panel right-panel">
-                <div class="panel-header">
-                    <span>LIVE SIMULATION METRICS</span>
-                    <span style="font-size: 0.6rem; color: var(--accent);">VEGA v2.4</span>
-                </div>
-                <div class="panel-body">
-                    
-                    <div class="metric-card">
-                        <div class="metric-title">
-                            <span>SIMULATED CPU LOAD</span>
-                            <span id="val-cpu">42%</span>
-                        </div>
-                        <div class="progress-bar-bg">
-                            <div class="progress-bar-fill" id="bar-cpu" style="width: 42%;"></div>
-                        </div>
-                    </div>
-
-                    <div class="metric-card">
-                        <div class="metric-title">
-                            <span>VIRTUAL MEMORY ALLOCATION</span>
-                            <span id="val-ram">68%</span>
-                        </div>
-                        <div class="progress-bar-bg">
-                            <div class="progress-bar-fill" id="bar-ram" style="width: 68%;"></div>
-                        </div>
-                    </div>
-
-                    <div class="metric-card">
-                        <div class="metric-title">
-                            <span>SYNTHETIC DATA STREAM</span>
-                            <span id="val-data">1.2 GB/s</span>
-                        </div>
-                        <div class="progress-bar-bg">
-                            <div class="progress-bar-fill" id="bar-data" style="width: 80%;"></div>
-                        </div>
-                    </div>
-
-                    <div style="font-size: 0.65rem; color: var(--accent); margin-top: 4px;">THREAT SIMULATOR (FICTIONAL)</div>
-                    <div id="threat-container">
-                        <div class="threat-item">
-                            <div style="font-weight: bold; color: var(--warning);">[LOW PRIORITY] SYNTHETIC HANDSHAKE</div>
-                            <div style="color: var(--text-dim); font-size: 0.6rem;">NODE-102 &gt; VIRTUAL REPOSITORY</div>
-                        </div>
-                    </div>
-
-                    <div style="font-size: 0.65rem; color: var(--accent); margin-top: 4px;">VEGA // ANALYTICS CORE</div>
-                    <div class="vega-ai-box" id="vega-ai-output">
-                        VEGA CORE ONLINE. Monitoring continuous virtual telemetry. All operations strictly simulated inside sandbox node matrix.
-                    </div>
-                    <button class="btn" style="width: 100%; font-size: 0.65rem;" onclick="triggerVegaAI()">RUN ANALYTICS DIAGNOSTIC</button>
-
-                </div>
-            </div>
-
-        </div>
-
-        <footer>
-            <div class="ticker-wrap" id="ticker">
-                <span>SIMULATION TIME: REALTIME</span>
-                <span>•</span>
-                <span>GLOBAL VIRTUAL NODES: 16,384</span>
-                <span>•</span>
-                <span>SYNTHETIC PACKETS: 4,920,110/s</span>
-                <span>•</span>
-                <span>ENCRYPTION VISUALIZER: 4096-BIT VIRTUAL</span>
-                <span>•</span>
-                <span>SECURITY MODE: CINEMATIC HOLLYWOOD PROP</span>
-                <span>•</span>
-                <span>SYSTEM STATUS: ALL GREEN</span>
-            </div>
-        </footer>
-
-    </div>
-
-    <script>
-        /* ==========================================================================
-           1. BOOT SEQUENCE & UTILS
-           ========================================================================== */
-        window.addEventListener('load', () => {
-            const bootBar = document.getElementById('boot-bar');
-            const bootScreen = document.getElementById('boot-screen');
-            const bootText = document.getElementById('boot-text');
-            
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += Math.floor(Math.random() * 15) + 5;
-                if (progress > 100) progress = 100;
-                bootBar.style.width = progress + '%';
-
-                if (progress > 30 && progress < 70) {
-                    bootText.innerText = "CALIBRATING HOLOGRAPHIC GLOBE & ORBITAL RINGS...";
-                } else if (progress >= 70) {
-                    bootText.innerText = "SYNCHRONIZING VEGA ANALYTICS CORE...";
-                }
-
-                if (progress === 100) {
-                    clearInterval(interval);
-                    setTimeout(() => {
-                        bootScreen.style.opacity = '0';
-                        setTimeout(() => bootScreen.style.display = 'none', 800);
-                    }, 300);
-                }
-            }, 60);
-
-            initGlobe();
-            startClock();
-            startContinuousTerminal();
-            startMetricsSimulation();
+            if (unlockedCardsCount === 4) {
+              document.getElementById('vaultCompleteStatus').innerText = "ALL MEMORIES UNLOCKED ✨";
+              const nextBtn = document.getElementById('oneLastSurpriseBtn');
+              nextBtn.style.opacity = '1';
+              nextBtn.style.pointerEvents = 'auto';
+              spawnConfettiBurst(40);
+            }
+          }
         });
 
-        function startClock() {
-            setInterval(() => {
-                const now = new Date();
-                document.getElementById('clock').innerText = now.toUTCString().split(' ')[4] + ' UTC';
-            }, 1000);
-        }
+        grid.appendChild(card);
+      });
+    }
 
-        /* ==========================================================================
-           2. 3D HTML5 CANVAS WIREFRAME GLOBE & SATELLITES
-           ========================================================================== */
-        let canvas, ctx;
-        let points = [];
-        let satellites = [];
-        let globeRotationY = 0;
+    // SCREEN 4 -> SCREEN 5 (Heartfelt Letter)
+    document.getElementById('oneLastSurpriseBtn').addEventListener('click', () => {
+      showScreen(5);
+      renderLetter();
+    });
 
-        function initGlobe() {
-            canvas = document.getElementById('globeCanvas');
-            ctx = canvas.getContext('2d');
-            resizeCanvas();
-            window.addEventListener('resize', resizeCanvas);
+    function renderLetter() {
+      const container = document.getElementById('letterContainer');
+      container.innerHTML = '';
+      document.getElementById('letterSender').innerText = '';
 
-            // Generate Globe Points (Latitude / Longitude Wireframe Sphere)
-            const radius = 180;
-            const numLat = 16;
-            const numLon = 24;
+      CONFIG.letterLines.forEach((lineText, idx) => {
+        const line = document.createElement('div');
+        line.className = 'letter-line';
+        line.innerText = lineText;
+        container.appendChild(line);
 
-            for (let i = 0; i <= numLat; i++) {
-                let lat = (Math.PI / numLat) * i - Math.PI / 2;
-                for (let j = 0; j < numLon; j++) {
-                    let lon = (Math.PI * 2 / numLon) * j;
-                    let x = radius * Math.cos(lat) * Math.cos(lon);
-                    let y = radius * Math.sin(lat);
-                    let z = radius * Math.cos(lat) * Math.sin(lon);
-                    points.push({ x, y, z });
-                }
-            }
+        setTimeout(() => {
+          line.classList.add('visible');
+        }, idx * 600 + 400);
+      });
 
-            // Generate Synthetic Satellites
-            for (let i = 0; i < 8; i++) {
-                satellites.push({
-                    angle: Math.random() * Math.PI * 2,
-                    speed: 0.005 + Math.random() * 0.01,
-                    distance: 220 + Math.random() * 40,
-                    tilt: (Math.random() - 0.5) * 0.8
-                });
-            }
+      setTimeout(() => {
+        document.getElementById('letterSender').innerText = `— ${CONFIG.sonName} 🫶`;
+      }, CONFIG.letterLines.length * 600 + 600);
+    }
 
-            requestAnimationFrame(animateGlobe);
-        }
+    // SCREEN 5 -> SCREEN 6
+    document.getElementById('waitMoreBtn').addEventListener('click', () => {
+      showScreen(6);
+      
+      // Sequence
+      setTimeout(() => {
+        document.getElementById('finalText1').style.opacity = '1';
+      }, 500);
 
-        function resizeCanvas() {
-            if (!canvas) return;
-            canvas.width = canvas.parentElement.clientWidth;
-            canvas.height = canvas.parentElement.clientHeight;
-        }
+      setTimeout(() => {
+        document.getElementById('finalText2').style.opacity = '1';
+      }, 1800);
+    });
 
-        function animateGlobe() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // FINAL REVEAL CLICK
+    document.getElementById('finalRevealBtn').addEventListener('click', () => {
+      document.getElementById('finalText1').style.display = 'none';
+      document.getElementById('finalText2').style.display = 'none';
+      document.getElementById('finalRevealBtn').style.display = 'none';
 
-            const cx = canvas.width / 2;
-            const cy = canvas.height / 2;
-            globeRotationY += 0.004;
+      document.getElementById('finalRevealContent').style.display = 'flex';
 
-            // Render Outer Holographic Rings
-            ctx.strokeStyle = getCSSVar('--accent-glow');
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.ellipse(cx, cy, 260, 70, 0.2, 0, Math.PI * 2);
-            ctx.stroke();
+      // Animate progress bar
+      setTimeout(() => {
+        document.getElementById('progressFill').style.width = '100%';
+      }, 300);
 
-            // Render Sphere Points
-            ctx.fillStyle = getCSSVar('--accent');
-            points.forEach(pt => {
-                // Rotate around Y axis
-                let cosY = Math.cos(globeRotationY);
-                let sinY = Math.sin(globeRotationY);
-                let x = pt.x * cosY - pt.z * sinY;
-                let z = pt.x * sinY + pt.z * cosY;
-                let y = pt.y;
+      // Explosive celebration
+      startMassiveCelebration();
+    });
 
-                // Simple 3D perspective projection
-                let scale = 300 / (300 + z);
-                let px = cx + x * scale;
-                let py = cy + y * scale;
+    // ==========================================
+    // CANVAS ANIMATION ENGINE (Particles, Stars, Confetti)
+    // ==========================================
+    let canvasWidth = bgCanvas.width = window.innerWidth;
+    let canvasHeight = bgCanvas.height = window.innerHeight;
 
-                if (z < 0) { // Front hemisphere dimmer opacity
-                    ctx.globalAlpha = (scale - 0.5) * 0.9;
-                    ctx.fillRect(px, py, 2 * scale, 2 * scale);
-                } else {
-                    ctx.globalAlpha = 0.15;
-                    ctx.fillRect(px, py, 1.5, 1.5);
-                }
-            });
+    window.addEventListener('resize', () => {
+      canvasWidth = bgCanvas.width = window.innerWidth;
+      canvasHeight = bgCanvas.height = window.innerHeight;
+    });
 
-            // Render Synthetic Satellites
-            satellites.forEach((sat, idx) => {
-                sat.angle += sat.speed;
-                let sx = Math.cos(sat.angle) * sat.distance;
-                let sz = Math.sin(sat.angle) * sat.distance;
-                let sy = sz * sat.tilt;
+    const particles = [];
+    const confettiList = [];
 
-                let cosY = Math.cos(globeRotationY * 0.5);
-                let sinY = Math.sin(globeRotationY * 0.5);
-                let rx = sx * cosY - sz * sinY;
-                let rz = sx * sinY + sz * cosY;
+    // Ambient background stars
+    for (let i = 0; i < 45; i++) {
+      particles.push({
+        x: Math.random() * canvasWidth,
+        y: Math.random() * canvasHeight,
+        size: Math.random() * 2 + 1,
+        speedY: Math.random() * 0.3 + 0.1,
+        alpha: Math.random(),
+        pulseSpeed: Math.random() * 0.02 + 0.01,
+        color: ['#ffffff', '#ff7eb3', '#ffd700'][Math.floor(Math.random() * 3)]
+      });
+    }
 
-                let scale = 300 / (300 + rz);
-                let px = cx + rx * scale;
-                let py = cy + sy * scale;
-
-                ctx.globalAlpha = 0.9;
-                ctx.fillStyle = idx % 2 === 0 ? getCSSVar('--accent') : getCSSVar('--warning');
-                ctx.beginPath();
-                ctx.arc(px, py, 3 * scale, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Connect Satellite to center with synthetic laser arc
-                if (idx === 0) {
-                    ctx.strokeStyle = getCSSVar('--accent');
-                    ctx.lineWidth = 0.8;
-                    ctx.beginPath();
-                    ctx.moveTo(cx, cy);
-                    ctx.lineTo(px, py);
-                    ctx.stroke();
-                }
-            });
-
-            requestAnimationFrame(animateGlobe);
-        }
-
-        function randomizeGlobe() {
-            globeRotationY += 1.5;
-            logTerminal("GLOBE ORBIT ROTATION VECTOR ADJUSTED", "sys");
-        }
-
-        /* ==========================================================================
-           3. TERMINAL & CONTINUOUS SIMULATION LOGGING
-           ========================================================================== */
-        const terminal = document.getElementById('terminal');
-
-        function logTerminal(msg, type = 'norm') {
-            const line = document.createElement('div');
-            line.className = `terminal-log ${type}`;
-            const time = new Date().toISOString().split('T')[1].slice(0, 8);
-            line.innerText = `[${time}] > ${msg}`;
-            terminal.appendChild(line);
-            terminal.scrollTop = terminal.scrollHeight;
-        }
-
-        function clearTerminal() {
-            terminal.innerHTML = '<div class="terminal-log sys">&gt; TERMINAL CLEARED.</div>';
-        }
-
-        function startContinuousTerminal() {
-            const fakeLogs = [
-                "Synchronizing orbital node buffers...",
-                "Synthetic telemetry handshake confirmed.",
-                "Simulated packet flow rate optimal.",
-                "Encrypting visual sandbox workspace...",
-                "Node ALPHA-01 sent synthetic packet batch.",
-                "VEGA Analytics Core polling simulated CPU threads...",
-                "Generating fictional diagnostic pulse..."
-            ];
-
-            setInterval(() => {
-                const randomMsg = fakeLogs[Math.floor(Math.random() * fakeLogs.length)];
-                logTerminal(randomMsg);
-            }, 3500);
-        }
-
-        /* ==========================================================================
-           4. CODE FORGE & 500-LINE CHECKPOINT SYSTEM
-           ========================================================================== */
-        let totalLinesGenerated = 0;
-        let totalTokensGenerated = 0;
-        let totalCheckpoints = 0;
-        let nextCheckpointAt = 500;
-
-        const codeSnippets = {
-            python: [
-                "def simulate_node_handshake(node_id: str) -> dict:\n    packet = {'virtual_id': node_id, 'status': 'SYNTHETIC_OK'}\n    return render_hologram_payload(packet)\n",
-                "class VirtualClusterManager:\n    def __init__(self, capacity=1024):\n        self.capacity = capacity\n        self.nodes = [create_synthetic_node() for _ in range(16)]\n",
-                "async def stream_telemetry_data():\n    while True:\n        await asyncio.sleep(0.1)\n        yield generate_virtual_packet()\n"
-            ],
-            javascript: [
-                "function renderHolographicGrid(targetNode) {\n    const buffer = new ArrayBuffer(1024);\n    return updateSimulationGrid(buffer, targetNode.coords);\n}\n",
-                "const executeVirtualHandshake = async (nodeId) => {\n    const payload = await generateVirtualPacket(nodeId);\n    return payload.status === 200;\n};\n"
-            ],
-            cpp: [
-                "template<typename T>\nclass QuantumBufferSimulator {\npublic:\n    void pushVirtualData(T packet) {\n        std::lock_guard<std::mutex> lock(mtx);\n        simQueue.push(packet);\n    }\n};\n"
-            ]
-        };
-
-        function generateCodeBatch() {
-            const lang = document.getElementById('code-lang').value;
-            const editor = document.getElementById('code-editor');
-            const snippets = codeSnippets[lang] || codeSnippets['python'];
-
-            let addedCode = "";
-            let addedLines = 0;
-
-            for (let i = 0; i < 25; i++) {
-                const snippet = snippets[Math.floor(Math.random() * snippets.length)];
-                addedCode += snippet + "\n";
-                addedLines += snippet.split('\n').length;
-            }
-
-            editor.innerText += "\n" + addedCode;
-            editor.scrollTop = editor.scrollHeight;
-
-            totalLinesGenerated += addedLines;
-            totalTokensGenerated += addedLines * 8;
-
-            document.getElementById('stat-lines').innerText = String(totalLinesGenerated).padStart(6, '0');
-            document.getElementById('stat-tokens').innerText = String(totalTokensGenerated).padStart(6, '0');
-
-            logTerminal(`CODE FORGE: Generated +${addedLines} lines (${lang.toUpperCase()})`, 'sys');
-
-            // CHECKPOINT TRIGGER LOGIC (EVERY 500 LINES)
-            if (totalLinesGenerated >= nextCheckpointAt) {
-                triggerCheckpointNotification(nextCheckpointAt);
-                nextCheckpointAt += 500;
-            }
-        }
-
-        function triggerCheckpointNotification(checkpointLines) {
-            totalCheckpoints++;
-            document.getElementById('stat-checkpoints').innerText = totalCheckpoints;
-
-            const banner = document.getElementById('checkpoint-banner');
-            const title = document.getElementById('checkpoint-title');
-            const time = document.getElementById('checkpoint-time');
-
-            title.innerText = `// ===== ${checkpointLines} LINES COMPLETE =====`;
-            time.innerText = `TIMESTAMP: ${new Date().toLocaleTimeString()}`;
-
-            banner.classList.add('active');
-
-            logTerminal(`// ===== CHECKPOINT CREATED: ${checkpointLines} LINES =====`, 'warn');
-
-            setTimeout(() => {
-                banner.classList.remove('active');
-            }, 3000);
-        }
-
-        function clearCodeForge() {
-            document.getElementById('code-editor').innerText = "// HARmless SYNTHETIC CODE GENERATOR CLEARED.";
-            logTerminal("CODE FORGE CLEARED", "warn");
-        }
-
-        /* ==========================================================================
-           5. METRICS & THREAT SIMULATOR
-           ========================================================================== */
-        function startMetricsSimulation() {
-            setInterval(() => {
-                const cpu = Math.floor(Math.random() * 40) + 30;
-                const ram = Math.floor(Math.random() * 20) + 60;
-
-                document.getElementById('bar-cpu').style.width = cpu + '%';
-                document.getElementById('val-cpu').innerText = cpu + '%';
-
-                document.getElementById('bar-ram').style.width = ram + '%';
-                document.getElementById('val-ram').innerText = ram + '%';
-            }, 2000);
-        }
-
-        function generateSimEvent() {
-            const threats = [
-                { title: "[CRITICAL SIM] VIRTUAL OVERLOAD", detail: "NODE-88 > SYNTHETIC BUFFER HIGH", color: "var(--danger)" },
-                { title: "[MEDIUM ALERT] LATENCY SPIKE", detail: "ORBITAL RING-02 > DELAY +12ms", color: "var(--warning)" },
-                { title: "[LOW PRIORITY] ROUTE UPDATED", detail: "SYNTHETIC GRID > AUTO OPTIMIZED", color: "var(--accent)" }
-            ];
-
-            const item = threats[Math.floor(Math.random() * threats.length)];
-            const container = document.getElementById('threat-container');
-
-            const div = document.createElement('div');
-            div.className = 'threat-item';
-            div.style.borderLeftColor = item.color;
-            div.innerHTML = `
-                <div style="font-weight: bold; color: ${item.color}">${item.title}</div>
-                <div style="color: var(--text-dim); font-size: 0.6rem;">${item.detail}</div>
-            `;
-
-            container.prepend(div);
-            if (container.children.length > 4) container.removeChild(container.lastChild);
-
-            logTerminal(`SIMULATION EVENT GENERATED: ${item.title}`, 'warn');
-        }
-
-        /* ==========================================================================
-           6. VEGA ANALYTICS CORE (AI SIMULATION)
-           ========================================================================== */
-        function triggerVegaAI() {
-            const output = document.getElementById('vega-ai-output');
-            output.innerText = "> VEGA ANALYZING VIRTUAL TELEMETRY...";
-
-            const responses = [
-                "ANALYSIS COMPLETE: Simulated cluster stability is at 99.8%. No real targets detected. Synthetic packet flow optimized.",
-                "ANALYSIS COMPLETE: Detected minor simulated buffer fluctuation on Node ALPHA-01. Auto-correction algorithm applied locally.",
-                "ANALYSIS COMPLETE: Code Forge complexity vector normal. Checkpoint telemetry logged successfully."
-            ];
-
-            setTimeout(() => {
-                output.innerText = responses[Math.floor(Math.random() * responses.length)];
-                logTerminal("VEGA AI DIAGNOSTIC EXECUTED", "sys");
-            }, 1000);
-        }
-
-        /* ==========================================================================
-           7. COMMAND PALETTE & SHORTCUTS
-           ========================================================================== */
-        const themes = ['cyan', 'red', 'purple', 'ice', 'green'];
-        let currentThemeIdx = 0;
-
-        function toggleTheme() {
-            currentThemeIdx = (currentThemeIdx + 1) % themes.length;
-            const theme = themes[currentThemeIdx];
-            if (theme === 'cyan') document.body.removeAttribute('data-theme');
-            else document.body.setAttribute('data-theme', theme);
-            logTerminal(`COLOR THEME CHANGED TO: ${theme.toUpperCase()}`, 'sys');
-        }
-
-        function openCmdPalette() {
-            document.getElementById('cmd-palette').classList.add('active');
-            document.getElementById('cmd-input').focus();
-        }
-
-        function closeCmdPalette() {
-            document.getElementById('cmd-palette').classList.remove('active');
-        }
-
-        function triggerPaletteCmd(cmd) {
-            closeCmdPalette();
-            if (cmd === 'event') generateSimEvent();
-            if (cmd === 'code') generateCodeBatch();
-            if (cmd === 'ai') triggerVegaAI();
-            if (cmd === 'clear') clearTerminal();
-            if (cmd === 'theme') toggleTheme();
-            if (cmd === 'checkpoint') triggerCheckpointNotification(totalLinesGenerated || 500);
-        }
-
-        window.addEventListener('keydown', (e) => {
-            if (e.ctrlKey && e.key.toLowerCase() === 'k') {
-                e.preventDefault();
-                openCmdPalette();
-            }
-            if (e.ctrlKey && e.key.toLowerCase() === 'g') {
-                e.preventDefault();
-                generateSimEvent();
-            }
-            if (e.ctrlKey && e.key.toLowerCase() === 'l') {
-                e.preventDefault();
-                clearTerminal();
-            }
-            if (e.ctrlKey && e.key.toLowerCase() === 'a') {
-                e.preventDefault();
-                triggerVegaAI();
-            }
-            if (e.key === 'Escape') {
-                closeCmdPalette();
-            }
+    function spawnBurstParticles(x, y, count, colors) {
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 4 + 1;
+        confettiList.push({
+          x: x,
+          y: y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          size: Math.random() * 6 + 3,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          alpha: 1,
+          decay: Math.random() * 0.02 + 0.015,
+          type: 'spark'
         });
+      }
+     }
 
-        function getCSSVar(name) {
-            return getComputedStyle(document.body).getPropertyValue(name).trim();
+    function spawnConfettiBurst(count) {
+      const colors = ['#ff758c', '#ffd700', '#6b26d9', '#ffffff', '#ff7eb3'];
+      for (let i = 0; i < count; i++) {
+        confettiList.push({
+          x: Math.random() * canvasWidth,
+          y: -10,
+          vx: (Math.random() - 0.5) * 3,
+          vy: Math.random() * 3 + 2,
+          size: Math.random() * 8 + 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          alpha: 1,
+          decay: Math.random() * 0.005 + 0.002,
+          rotation: Math.random() * 360,
+          rotSpeed: (Math.random() - 0.5) * 5,
+          type: 'paper'
+        });
+      }
+    }
+
+    function startMassiveCelebration() {
+      let bursts = 0;
+      const interval = setInterval(() => {
+        spawnConfettiBurst(35);
+        spawnBurstParticles(
+          Math.random() * canvasWidth,
+          Math.random() * (canvasHeight * 0.7),
+          20,
+          ['#ffd700', '#ff758c', '#ffffff']
+        );
+        bursts++;
+        if (bursts > 10) clearInterval(interval);
+      }, 400);
+    }
+
+    // Animation Render Loop
+    function render() {
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+      // Render Stars
+      particles.forEach(p => {
+        p.alpha += p.pulseSpeed;
+        if (p.alpha > 1 || p.alpha < 0.2) p.pulseSpeed = -p.pulseSpeed;
+        p.y -= p.speedY;
+        if (p.y < 0) p.y = canvasHeight;
+
+        ctx.save();
+        ctx.globalAlpha = Math.abs(p.alpha);
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      });
+
+      // Render Confetti & Burst Sparks
+      for (let i = confettiList.length - 1; i >= 0; i--) {
+        const c = confettiList[i];
+        c.x += c.vx;
+        c.y += c.vy;
+        c.alpha -= c.decay;
+
+        if (c.type === 'paper') {
+          c.rotation += c.rotSpeed;
         }
-    </script>
+
+        if (c.alpha <= 0 || c.y > canvasHeight + 20) {
+          confettiList.splice(i, 1);
+          continue;
+        }
+
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, c.alpha);
+        ctx.fillStyle = c.color;
+        ctx.translate(c.x, c.y);
+
+        if (c.type === 'paper') {
+          ctx.rotate((c.rotation * Math.PI) / 180);
+          ctx.fillRect(-c.size / 2, -c.size / 2, c.size, c.size * 0.6);
+        } else {
+          ctx.beginPath();
+          ctx.arc(0, 0, c.size / 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.restore();
+      }
+
+      requestAnimationFrame(render);
+    }
+
+    render();
+  </script>
 </body>
 </html>      
+      
